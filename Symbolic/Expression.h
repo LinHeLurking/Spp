@@ -30,7 +30,7 @@ namespace Spp::Expression {
 
         explicit NodeBase(int pred) : pred_(pred) {}
 
-        virtual std::string expr_to_string() const = 0;
+        [[nodiscard]] virtual std::string expr_to_string() const = 0;
     };
 
     template<typename ValueT>
@@ -50,7 +50,7 @@ namespace Spp::Expression {
 
         explicit NumericNode(ValueT val) : val_(val), NodeBase<ValueT>(LN_OP) {}
 
-        std::string expr_to_string() const override {
+        [[nodiscard]] std::string expr_to_string() const override {
             return to_string(val_);
         }
 
@@ -97,7 +97,7 @@ namespace Spp::Expression {
             this->children_.push_back(SharedNode<ValueT>(new U(b)));
         }
 
-        std::string expr_to_string() const override {
+        [[nodiscard]] std::string expr_to_string() const override {
             auto left = this->children_[0];
             auto right = this->children_[1];
             auto l_str = left->pred_ < this->pred_ ? wrap_bracket(left->expr_to_string()) : left->expr_to_string();
@@ -182,7 +182,7 @@ namespace Spp::Expression {
             return static_cast<ValueT>(child_->val());
         }
 
-        std::string expr_to_string() const override {
+        [[nodiscard]] std::string expr_to_string() const override {
             return Numeric::to_string(static_cast<ValueT>(child_->val()));
         }
 
