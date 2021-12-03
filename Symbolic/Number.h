@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <numeric>
+#include <string>
 #include <iostream>
 
 namespace Spp::Numeric {
@@ -73,6 +74,13 @@ namespace Spp::Numeric {
             return *this;
         }
     };
+
+    using std::to_string;
+
+    template<typename ValueT>
+    std::string to_string(const Rational<ValueT> &v) {
+        return std::to_string(v.n_) + "/" + std::to_string(v.d_);
+    }
 
     template<typename>
     struct is_rational : std::false_type {

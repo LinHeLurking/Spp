@@ -14,7 +14,8 @@ namespace Spp::Expression {
     // L1: +, -
     // L2: *, /
     // L3: ^
-    constexpr int L1_OP = 1, L2_OP = 2, L3_OP = 3;
+    // LN_OP: Numeric
+    constexpr int L1_OP = 1, L2_OP = 2, L3_OP = 3, LN_OP = 10000;
 
     template<typename ValueT, std::enable_if_t<Numeric::is_numeric_v < ValueT>, bool> = true>
 
@@ -24,10 +25,20 @@ namespace Spp::Expression {
         // For op nodes, evaluation over the sub-tree.
         // Values will be cached.
         virtual ValueT val() = 0;
+
+        int pred_;
+
+        explicit NodeBase(int pred) : pred_(pred) {}
+
+        virtual std::string expr_to_string() const = 0;
     };
 
     template<typename ValueT>
     using SharedNode = std::shared_ptr<NodeBase<ValueT>>;
+
+    std::string wrap_bracket(const std::string &s) {
+        return "(" + s + ")";
+    }
 
 
     template<typename ValueT>
@@ -37,7 +48,11 @@ namespace Spp::Expression {
             return val_;
         }
 
-        explicit NumericNode(ValueT val) : val_(val) {}
+        explicit NumericNode(ValueT val) : val_(val), NodeBase<ValueT>(LN_OP) {}
+
+        std::string expr_to_string() const override {
+            return to_string(val_);
+        }
 
     protected:
         ValueT val_;
@@ -60,11 +75,10 @@ namespace Spp::Expression {
         }
 
         template<class StringT>
-        explicit OperatorNode(int pred, StringT name) : pred_(pred), name_(name) {}
+        explicit OperatorNode(int pred, StringT name) :NodeBase<ValueT>(pred), name_(name) {}
 
         virtual ValueT op(const std::vector<ValueT> &v) = 0;
 
-        int pred_;
         const std::string name_;
 
         std::vector<SharedNode<ValueT>> children_;
@@ -75,13 +89,28 @@ namespace Spp::Expression {
     };
 
     template<typename ValueT>
-    class AddNode : public OperatorNode<ValueT> {
+    class BinaryOpNode : public OperatorNode<ValueT> {
     public:
         template<typename T, typename U>
-        explicit AddNode(T a, U b):OperatorNode<ValueT>(L1_OP, "+") {
+        explicit BinaryOpNode(T a, U b, int pred, std::string name) : OperatorNode<ValueT>(pred, name) {
             this->children_.push_back(SharedNode<ValueT>(new T(a)));
             this->children_.push_back(SharedNode<ValueT>(new U(b)));
         }
+
+        std::string expr_to_string() const override {
+            auto left = this->children_[0];
+            auto right = this->children_[1];
+            auto l_str = left->pred_ < this->pred_ ? wrap_bracket(left->expr_to_string()) : left->expr_to_string();
+            auto r_str = right->pred_ < this->pred_ ? wrap_bracket(right->expr_to_string()) : right->expr_to_string();
+            return l_str + " " + this->name_ + " " + r_str;
+        }
+    };
+
+    template<typename ValueT>
+    class AddNode : public BinaryOpNode<ValueT> {
+    public:
+        template<typename T, typename U>
+        explicit AddNode(T a, U b):BinaryOpNode<ValueT>(a, b, L1_OP, "+") {}
 
         ValueT op(const std::vector<ValueT> &v) override {
             return v[0] + v[1];
@@ -89,13 +118,10 @@ namespace Spp::Expression {
     };
 
     template<typename ValueT>
-    class SubNode : public OperatorNode<ValueT> {
+    class SubNode : public BinaryOpNode<ValueT> {
     public:
         template<typename T, typename U>
-        explicit SubNode(T a, U b):OperatorNode<ValueT>(L1_OP, "-") {
-            this->children_.push_back(SharedNode<ValueT>(new T(a)));
-            this->children_.push_back(SharedNode<ValueT>(new U(b)));
-        }
+        explicit SubNode(T a, U b):BinaryOpNode<ValueT>(a, b, L1_OP, "-") {}
 
         ValueT op(const std::vector<ValueT> &v) override {
             return v[0] - v[1];
@@ -103,13 +129,10 @@ namespace Spp::Expression {
     };
 
     template<typename ValueT>
-    class MulNode : public OperatorNode<ValueT> {
+    class MulNode : public BinaryOpNode<ValueT> {
     public:
         template<typename T, typename U>
-        explicit MulNode(T a, U b):OperatorNode<ValueT>(L2_OP, "*") {
-            this->children_.push_back(SharedNode<ValueT>(new T(a)));
-            this->children_.push_back(SharedNode<ValueT>(new U(b)));
-        }
+        explicit MulNode(T a, U b):BinaryOpNode<ValueT>(a, b, L2_OP, "*") {}
 
         ValueT op(const std::vector<ValueT> &v) override {
             return v[0] * v[1];
@@ -117,13 +140,10 @@ namespace Spp::Expression {
     };
 
     template<typename ValueT>
-    class DivNode : public OperatorNode<ValueT> {
+    class DivNode : public BinaryOpNode<ValueT> {
     public:
         template<typename T, typename U>
-        explicit DivNode(T a, U b):OperatorNode<ValueT>(L2_OP, "/") {
-            this->children_.push_back(SharedNode<ValueT>(new T(a)));
-            this->children_.push_back(SharedNode<ValueT>(new U(b)));
-        }
+        explicit DivNode(T a, U b):BinaryOpNode<ValueT>(a, b, L2_OP, "/") {}
 
         ValueT op(const std::vector<ValueT> &v) override {
             return v[0] / v[1];
@@ -162,8 +182,12 @@ namespace Spp::Expression {
             return static_cast<ValueT>(child_->val());
         }
 
+        std::string expr_to_string() const override {
+            return Numeric::to_string(static_cast<ValueT>(child_->val()));
+        }
+
         template<template<class ...> class ChildNodeT>
-        explicit CastNode(ChildNodeT<ChildValueT> child) {
+        explicit CastNode(ChildNodeT<ChildValueT> child):NodeBase<ValueT>(child.pred_) {
             child_ = SharedNode<ChildValueT>(new ChildNodeT<ChildValueT>(child));
         }
 
