@@ -11,22 +11,10 @@
 
 namespace Spp::Expression {
 
-    template<typename ValueT>
-    struct OperatorFunc {
-        const std::string name_;
-        std::function<ValueT(const std::vector<ValueT> &)> func_;
-
-        inline ValueT operator()(const std::vector<ValueT> &v) {
-            return func_(v);
-        }
-    };
-
-    template<typename ValueT>
-    inline auto OP_ADD = OperatorFunc<ValueT>{
-            .name_="+",
-            .func_=[](const std::vector<ValueT> &v) {
-                return v[0] + v[1];
-            }};
+    // L1: +, -
+    // L2: *, /
+    // L3: ^
+    constexpr int L1_OP = 1, L2_OP = 2, L3_OP = 3;
 
     template<typename ValueT, std::enable_if_t<Numeric::is_numeric_v < ValueT>, bool> = true>
 
@@ -67,14 +55,19 @@ namespace Spp::Expression {
                     child_val.push_back(child->val());
                 }
                 this->cache_initialized_ = true;
-                return this->cached_val_ = op_(child_val);
+                return this->cached_val_ = op(child_val);
             }
         }
 
-        explicit OperatorNode(OperatorFunc<ValueT> op) : op_(op) {}
+        template<class StringT>
+        explicit OperatorNode(int pred, StringT name) : pred_(pred), name_(name) {}
+
+        virtual ValueT op(const std::vector<ValueT> &v) = 0;
+
+        int pred_;
+        const std::string name_;
 
         std::vector<SharedNode<ValueT>> children_;
-        OperatorFunc<ValueT> op_;
 
     protected:
         bool cache_initialized_ = false;
@@ -85,9 +78,55 @@ namespace Spp::Expression {
     class AddNode : public OperatorNode<ValueT> {
     public:
         template<typename T, typename U>
-        explicit AddNode(T a, U b):OperatorNode<ValueT>(OP_ADD<ValueT>) {
+        explicit AddNode(T a, U b):OperatorNode<ValueT>(L1_OP, "+") {
             this->children_.push_back(SharedNode<ValueT>(new T(a)));
             this->children_.push_back(SharedNode<ValueT>(new U(b)));
+        }
+
+        ValueT op(const std::vector<ValueT> &v) override {
+            return v[0] + v[1];
+        }
+    };
+
+    template<typename ValueT>
+    class SubNode : public OperatorNode<ValueT> {
+    public:
+        template<typename T, typename U>
+        explicit SubNode(T a, U b):OperatorNode<ValueT>(L1_OP, "-") {
+            this->children_.push_back(SharedNode<ValueT>(new T(a)));
+            this->children_.push_back(SharedNode<ValueT>(new U(b)));
+        }
+
+        ValueT op(const std::vector<ValueT> &v) override {
+            return v[0] - v[1];
+        }
+    };
+
+    template<typename ValueT>
+    class MulNode : public OperatorNode<ValueT> {
+    public:
+        template<typename T, typename U>
+        explicit MulNode(T a, U b):OperatorNode<ValueT>(L2_OP, "*") {
+            this->children_.push_back(SharedNode<ValueT>(new T(a)));
+            this->children_.push_back(SharedNode<ValueT>(new U(b)));
+        }
+
+        ValueT op(const std::vector<ValueT> &v) override {
+            return v[0] * v[1];
+        }
+    };
+
+    template<typename ValueT>
+    class DivNode : public OperatorNode<ValueT> {
+    public:
+        template<typename T, typename U>
+        explicit DivNode(T a, U b):OperatorNode<ValueT>(L2_OP, "/") {
+            this->children_.push_back(SharedNode<ValueT>(new T(a)));
+            this->children_.push_back(SharedNode<ValueT>(new U(b)));
+        }
+
+        ValueT op(const std::vector<ValueT> &v) override {
+            return v[0] / v[1];
         }
     };
 
@@ -95,6 +134,24 @@ namespace Spp::Expression {
             template<class ...> class U>
     AddNode<ValueT> operator+(T<ValueT> a, U<ValueT> b) {
         return AddNode<ValueT>(a, b);
+    }
+
+    template<typename ValueT, template<class ...> class T,
+            template<class ...> class U>
+    SubNode<ValueT> operator-(T<ValueT> a, U<ValueT> b) {
+        return SubNode<ValueT>(a, b);
+    }
+
+    template<typename ValueT, template<class ...> class T,
+            template<class ...> class U>
+    MulNode<ValueT> operator*(T<ValueT> a, U<ValueT> b) {
+        return MulNode<ValueT>(a, b);
+    }
+
+    template<typename ValueT, template<class ...> class T,
+            template<class ...> class U>
+    DivNode<ValueT> operator/(T<ValueT> a, U<ValueT> b) {
+        return DivNode<ValueT>(a, b);
     }
 
 

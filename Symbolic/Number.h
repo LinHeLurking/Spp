@@ -51,6 +51,14 @@ namespace Spp::Numeric {
         }
 
         template<typename U>
+        Rational<T> operator-=(Rational<U> other) {
+            n_ = n_ * other.d_ - other.n_ * d_;
+            d_ *= other.d_;
+            reduce();
+            return *this;
+        }
+
+        template<typename U>
         Rational<T> operator*=(Rational<U> other) {
             n_ *= other.n_;
             d_ *= other.d_;
@@ -63,17 +71,6 @@ namespace Spp::Numeric {
             d_ *= other.n_;
             reduce();
             return *this;
-        }
-
-        Rational<T> operator/(Rational<T> other) {
-            auto a = *this;
-            a /= other;
-            return a;
-        }
-
-        friend std::ostream &operator<<(std::ostream &os, Rational<T> r) {
-            os << r.n_ << " / " << r.d_;
-            return os;
         }
     };
 
@@ -92,6 +89,13 @@ namespace Spp::Numeric {
     auto operator+(Rational<T> self, Rational<U> other) {
         Rational<std::common_type_t<T, U>> res = self;
         res += other;
+        return res;
+    }
+
+    template<typename T, typename U>
+    auto operator-(Rational<T> self, Rational<U> other) {
+        Rational<std::common_type_t<T, U>> res = self;
+        res -= other;
         return res;
     }
 
@@ -122,6 +126,25 @@ namespace Spp::Numeric {
     template<typename T, typename U, std::enable_if_t<!is_rational_v<T>, bool> = true>
     auto operator+(const T a, const Rational<U> b) {
         return b + a;
+    }
+
+    template<typename T, typename U, std::enable_if_t<
+            std::is_integral_v<U> || std::is_floating_point_v<U>, bool> = true>
+    auto operator-(const Rational<T> a, const U b) {
+        if constexpr(std::is_integral_v<U>) {
+            return a - static_cast<Rational<U>>(b);
+        } else if constexpr(std::is_floating_point_v<U>) {
+            return static_cast<U>(a) - b;
+        }
+    }
+
+    template<typename T, typename U, std::enable_if_t<!is_rational_v<T>, bool> = true>
+    auto operator-(const T a, const Rational<U> b) {
+        if constexpr(std::is_integral_v<T>) {
+            return static_cast<Rational<T>>(a) - b;
+        } else if constexpr(std::is_floating_point_v<T>) {
+            return a - static_cast<T>(b);
+        }
     }
 
     template<typename T, typename U, std::enable_if_t<std::is_arithmetic_v<U>, bool> = true>

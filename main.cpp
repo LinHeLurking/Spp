@@ -10,9 +10,11 @@ using namespace Spp::Numeric;
 using namespace Spp::Expression;
 
 int main() {
-    auto l = NumericNode(Rational(1, 5));
-    auto r = NumericNode(Rational(1, 5));
-    auto rt_add = CastNode<double, Rational<int>>(l + r);
-    cout << rt_add.val() << endl;
+    auto a = NumericNode(Rational(1, 2));
+    auto b = NumericNode(Rational(1, 3));
+    auto c = NumericNode(Rational(1, 4));
+    auto d = NumericNode(Rational(1, 5));
+    auto res = CastNode<double, Rational<int>>((a + b) * c - c / d);
+    cout << res.val() << endl;
     return 0;
 }
