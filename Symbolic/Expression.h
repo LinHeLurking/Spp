@@ -177,15 +177,15 @@ namespace Spp::Expr {
 
     namespace Visitor {
         template<typename ValueT>
-        inline SharedNode<ValueT> eval_visitor(SharedNode<ValueT> nd) {
+        inline SharedNode<ValueT> exec_visitor(SharedNode<ValueT> nd) {
             using std::dynamic_pointer_cast;
             if (nd->type_ == Num) {
                 return nd;
             } else if (nd->type_ == Add || nd->type_ == Sub || nd->type_ == Mul || nd->type_ == Div) {
                 // Binary arithmetic
                 auto op_nd = dynamic_pointer_cast<ArithmeticNode<ValueT>>(nd);
-                op_nd->children_[0] = eval_visitor(op_nd->children_[0]);
-                op_nd->children_[1] = eval_visitor(op_nd->children_[1]);
+                op_nd->children_[0] = exec_visitor(op_nd->children_[0]);
+                op_nd->children_[1] = exec_visitor(op_nd->children_[1]);
                 if (op_nd->children_[0]->type_ == Num && op_nd->children_[1]->type_ == Num) {
                     ValueT l_val = dynamic_pointer_cast<NumericNode<ValueT>>(op_nd->children_[0])->val_;
                     ValueT r_val = dynamic_pointer_cast<NumericNode<ValueT>>(op_nd->children_[1])->val_;
@@ -209,8 +209,8 @@ namespace Spp::Expr {
 
         template<typename ValueT, template<class> class NodeT,
                 std::enable_if_t<std::is_base_of_v<NodeBase<ValueT>, NodeT<ValueT>>, bool> = true>
-        inline SharedNode<ValueT> eval_visitor(const NodeT<ValueT> &nd) {
-            return eval_visitor(SharedNode<ValueT>(new NodeT<ValueT>(nd)));
+        inline SharedNode<ValueT> exec_visitor(const NodeT<ValueT> &nd) {
+            return exec_visitor(SharedNode<ValueT>(new NodeT<ValueT>(nd)));
         }
     }
 }

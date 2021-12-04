@@ -17,6 +17,6 @@ int main() {
     auto d = NumericNode(Rational(1, 5));
     auto res = (a + b) * c - c / d;
     cout << res.expr_to_string() << endl;
-    cout << eval_visitor(res)->expr_to_string() << endl;
+    cout << exec_visitor(res)->expr_to_string() << endl;
     return 0;
 }
