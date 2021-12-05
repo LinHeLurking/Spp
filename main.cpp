@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 #include "Symbolic/Number.h"
 #include "Symbolic/Expression.h"
@@ -7,16 +6,16 @@
 
 using namespace std;
 using namespace Spp::Numeric;
-using namespace Spp::Expr;
-using namespace Spp::Expr::Visitor;
+using namespace Spp;
 
 int main() {
-    auto a = NumericNode(Rational(1, 2));
-    auto b = NumericNode(Rational(1, 3));
-    auto c = NumericNode(Rational(1, 4));
-    auto d = NumericNode(Rational(1, 5));
-    auto res = (a + b) * c - c / d;
-    cout << res.expr_to_string() << endl;
-    cout << exec_visitor(res)->expr_to_string() << endl;
+    auto x = Expr(1);
+    auto y = Expr(2) / Expr(3);
+    auto z = Expr(4);
+    auto expr = (x + y) / z;
+    cout << expr << endl;
+    cout << expr.eval() << endl;
+    cout << expr.as_type<Rational<int>>().eval() << endl;
+    cout << expr.as_type<double>().eval() << endl;
     return 0;
 }

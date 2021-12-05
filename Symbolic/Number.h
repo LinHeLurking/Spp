@@ -75,11 +75,14 @@ namespace Spp::Numeric {
         }
     };
 
-    using std::to_string;
-
     template<typename ValueT>
     std::string to_string(const Rational<ValueT> &v) {
-        return std::to_string(v.n_) + "/" + std::to_string(v.d_);
+        using std::to_string;
+        if (abs(v.d_ - 1) < 1e-9) {
+            return std::to_string(v.n_);
+        } else {
+            return std::to_string(v.n_) + "/" + std::to_string(v.d_);
+        }
     }
 
     template<typename>
