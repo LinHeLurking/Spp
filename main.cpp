@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 
 #include "Symbolic/Number.h"
 #include "Symbolic/Expression.h"
@@ -9,11 +10,11 @@ using namespace Spp::Numeric;
 using namespace Spp;
 
 int main() {
-    Expr x = Rational(1, 2);
-    Expr y = 3.4;
-    Expr z = 5.6;
-    auto expr = (x + y) / z;
-    cout << expr << endl;
-    cout << expr.eval() << endl;
+    Var x{"x"};
+    Constant a = 1;
+    Expr y = a / (a + x);
+    cout << y << endl;
+    cout << y.substitute({{"x", y}}) << endl;
+    cout << y.substitute({{"x", y}}).eval({{"x", 1}}) << endl;
     return 0;
 }

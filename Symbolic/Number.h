@@ -170,6 +170,19 @@ namespace Spp::Numeric {
         }
 
         template<typename ValueT>
+        Number &operator=(ValueT val) {
+            static_assert(is_numeric_v<ValueT>, "Not valid numeric type!");
+            if (std::is_integral_v<ValueT>) {
+                val_ = int64_t(val);
+            } else if (std::is_floating_point_v<ValueT>) {
+                val_ = double(val);
+            } else if (is_rational_v<ValueT>) {
+                val_ = Rational(val);
+            }
+            return *this;
+        }
+
+        template<typename ValueT>
         inline ValueT get() const {
             return std::get<ValueT>(val_);
         }
@@ -242,7 +255,7 @@ namespace Spp::Numeric {
         int common_index = std::max(a.index(), b.index());
         switch (common_index) {
             case 0:
-                return a.get<Integer>() / b.get<Integer>();
+                return Rational(a.get<Integer>()) / Rational(b.get<Integer>());
             case 1:
                 return a.as<Rational>() / b.as<Rational>();
             case 2:
