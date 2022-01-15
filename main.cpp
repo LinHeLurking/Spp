@@ -10,11 +10,10 @@ using namespace Spp::Numeric;
 using namespace Spp;
 
 int main() {
-    Var x{"x"};
-    Constant a = 1;
-    Expr y = a / (a + x);
-    cout << y << endl;
-    cout << y.substitute({{"x", y}}) << endl;
-    cout << y.substitute({{"x", y}}).eval({{"x", 1}}) << endl;
+    Expr x{1};
+    Expr y{2};
+    Expr z{3};
+    auto a = x + y + z;
+    cout << to_string(a) << endl;
     return 0;
 }
