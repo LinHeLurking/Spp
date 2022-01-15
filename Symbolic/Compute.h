@@ -1,25 +1,22 @@
-#ifndef SPP_EXPRESSION_H
-#define SPP_EXPRESSION_H
+#ifndef SPP_COMPUTE_H
+#define SPP_COMPUTE_H
 
 #include "cstdint"
-#include <functional>
 #include <utility>
 #include <vector>
 #include <string>
 #include <sstream>
-#include <memory>
 #include <variant>
 #include <map>
 
 #include "Number.h"
 
-namespace Spp {
+namespace Spp::Compute {
     using std::string;
     using Numeric::Number;
     using std::vector;
-    using std::shared_ptr;
     enum OpType {
-        Add, Sub, Mul, Div, Function
+        Add, Sub, Mul, Div, Pow, Function
     };
 
     struct Variable {
@@ -42,7 +39,7 @@ namespace Spp {
         return variable.name_;
     }
 
-    constexpr int L0_OP = 0, L1_OP = 1, L2_OP = 2, LN_OP = 10000;
+    constexpr int L0_OP = 0, L1_OP = 1, L2_OP = 2, L3_OP = 3, LN_OP = 10000;
 
     struct Op {
         OpType type_;
@@ -68,6 +65,10 @@ namespace Spp {
         DivOp() : Op(Div, L2_OP, "/") {}
     };
 
+    struct PowOp : Op {
+        PowOp() : Op(Pow, L3_OP, "^") {}
+    };
+
 //    using Term = std::variant<Number, Variable>;
     using Node = std::variant<Number, Variable, Op>;
     constexpr int INDEX_NUMBER = 0, INDEX_VARIABLE = 1, INDEX_OP = 2;
@@ -81,6 +82,14 @@ namespace Spp {
         explicit Expr(Variable x) : root_(x) {}
 
         explicit Expr(const string &s) : root_(Variable(s)) {}
+
+        explicit Expr(int64_t x) : root_(Number{x}) {}
+
+        explicit Expr(int x) : root_(Number{int64_t(x)}) {}
+
+        explicit Expr(double x) : root_(Number{x}) {}
+
+        explicit Expr(Numeric::Rational x) : root_(Number{x}) {}
 
         Expr(const Op &op, const vector<Expr> &operand) : root_(op), children_(operand) {}
 
@@ -99,6 +108,9 @@ namespace Spp {
         Expr operator/(const Expr &rhs) const {
             return Expr{DivOp(), {*this, rhs}};
         }
+
+        // raise this to x power: return (*this)^x.
+        Expr pow(const Expr &x) const;
 
         [[nodiscard]] inline bool is_single_number() const {
             return root_.index() == INDEX_NUMBER && children_.empty();
@@ -145,7 +157,8 @@ namespace Spp {
                 case Add:
                 case Sub:
                 case Mul:
-                case Div: {
+                case Div:
+                case Pow: {
                     bool left_child_bracket = expr.children_[0].root_priority() < expr.root_priority();
                     bool right_child_bracket = expr.children_[1].root_priority() < expr.root_priority();
                     res << (left_child_bracket ? "(" : "")
@@ -167,15 +180,28 @@ namespace Spp {
         return res.str();
     }
 
+    // Raise power, return a^b
+    Expr pow(const Expr &a, const Expr &b) {
+        return Expr(PowOp(), {a, b});
+    }
+
+    Expr Expr::pow(const Expr &x) const {
+        return Spp::Compute::pow(*this, x);
+    }
+
+    string Expr::to_string() const {
+        return Spp::Compute::to_string(*this);
+    }
+
     Expr eval(const Expr &expr) {
+        using Numeric::pow;
         if (expr.root_.index() != INDEX_OP) {
             return expr;
         } else {
             const auto &op = std::get<Op>(expr.root_);
             switch (op.type_) {
                 case Function:
-                    // TODO: fix this
-                    return expr; // returning an expr just for compiler return value check.
+                    return expr;
                 default: {
                     const auto left = eval(expr.children_[0]);
                     const auto right = eval(expr.children_[1]);
@@ -189,6 +215,8 @@ namespace Spp {
                             return combine ? Expr(left.as_number() * right.as_number()) : left * right;
                         case Div:
                             return combine ? Expr(left.as_number() / right.as_number()) : left / right;
+                        case Pow:
+                            return combine ? Expr(pow(left.as_number(), right.as_number())) : pow(left, right);
                         default: // Impossible
                             throw std::runtime_error("Impossible evaluation dispatch.");
                     }
@@ -197,13 +225,9 @@ namespace Spp {
         }
     }
 
-    string Expr::to_string() const {
-        return Spp::to_string(*this);
-    }
-
     Expr Expr::eval() const {
-        return Spp::eval(*this);
+        return Spp::Compute::eval(*this);
     }
 }
 
-#endif //SPP_EXPRESSION_H
+#endif //SPP_COMPUTE_H

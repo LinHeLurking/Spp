@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstdint>
 #include <variant>
+#include <cmath>
 
 namespace Spp::Numeric {
     using Integer = int64_t;
@@ -35,7 +36,7 @@ namespace Spp::Numeric {
             return static_cast<U>(n_) / static_cast<U>(d_);
         }
 
-        Rational inverse() const {
+        [[nodiscard]] Rational inverse() const {
             return Rational(d_, n_);
         }
 
@@ -106,81 +107,13 @@ namespace Spp::Numeric {
         return res;
     }
 
-    template<typename U, std::enable_if_t<
-            std::is_integral_v<U> || std::is_floating_point_v<U>, bool> = true>
-    auto operator+(const Rational a, const U b) {
-        if constexpr(std::is_integral_v<U>) {
-            return a + static_cast<Rational>(b);
-        } else if constexpr(std::is_floating_point_v<U>) {
-            return static_cast<U>(a) + b;
-        }
-    }
-
-    template<typename T, std::enable_if_t<!is_rational_v<T>, bool> = true>
-    auto operator+(const T a, const Rational b) {
-        return b + a;
-    }
-
-    template<typename U, std::enable_if_t<
-            std::is_integral_v<U> || std::is_floating_point_v<U>, bool> = true>
-    auto operator-(const Rational a, const U b) {
-        if constexpr(std::is_integral_v<U>) {
-            return a - static_cast<Rational>(b);
-        } else if constexpr(std::is_floating_point_v<U>) {
-            return static_cast<U>(a) - b;
-        }
-    }
-
-    template<typename T, std::enable_if_t<!is_rational_v<T>, bool> = true>
-    auto operator-(const T a, const Rational b) {
-        if constexpr(std::is_integral_v<T>) {
-            return static_cast<Rational>(a) - b;
-        } else if constexpr(std::is_floating_point_v<T>) {
-            return a - static_cast<T>(b);
-        }
-    }
-
-    template<typename U, std::enable_if_t<std::is_arithmetic_v<U>, bool> = true>
-    auto operator*(const Rational a, const U b) {
-        if constexpr(std::is_integral_v<U>) {
-            return a * static_cast<Rational>(b);
-        } else if constexpr(std::is_floating_point_v<U>) {
-            return static_cast<U>(a) * b;
-        }
-    }
-
-    template<typename T, std::enable_if_t<!is_rational_v<T>, bool> = true>
-    auto operator*(const T a, const Rational b) {
-        return b * a;
-    }
-
-
     class Number {
     public:
-        template<typename ValueT, std::enable_if_t<is_numeric_v<ValueT>, bool> = true>
-        explicit Number(ValueT val) {
-//            static_assert(is_numeric_v<ValueT>, "Not valid numeric type!");
-            if (std::is_integral_v<ValueT>) {
-                val_ = int64_t(val);
-            } else if (std::is_floating_point_v<ValueT>) {
-                val_ = double(val);
-            } else if (is_rational_v<ValueT>) {
-                val_ = Rational(val);
-            }
-        }
+        explicit Number(int64_t x) : val_(x) {}
 
-        template<typename ValueT, std::enable_if_t<is_numeric_v<ValueT>, bool> = true>
-        Number &operator=(ValueT val) {
-//            static_assert(is_numeric_v<ValueT>, "Not valid numeric type!");
-            if (std::is_integral_v<ValueT>) {
-                val_ = int64_t(val);
-            } else if (std::is_floating_point_v<ValueT>) {
-                val_ = double(val);
-            } else if (is_rational_v<ValueT>) {
-                val_ = Rational(val);
-            }
-            return *this;
-        }
+        explicit Number(double x) : val_(x) {}
+
+        explicit Number(Rational x) : val_(x) {}
 
         template<typename ValueT>
         inline ValueT get() const {
@@ -213,11 +146,11 @@ namespace Spp::Numeric {
         int common_index = std::max(a.index(), b.index());
         switch (common_index) {
             case 0:
-                return a.get<Integer>() + b.get<Integer>();
+                return Number{a.get<Integer>() + b.get<Integer>()};
             case 1:
-                return a.as<Rational>() + b.as<Rational>();
+                return Number{a.as<Rational>() + b.as<Rational>()};
             case 2:
-                return a.as<Real>() + b.as<Real>();
+                return Number{a.as<Real>() + b.as<Real>()};
             default: // Impossible
                 throw std::runtime_error("Illegal arithmetic op!");
         }
@@ -227,11 +160,11 @@ namespace Spp::Numeric {
         int common_index = std::max(a.index(), b.index());
         switch (common_index) {
             case 0:
-                return a.get<Integer>() - b.get<Integer>();
+                return Number{a.get<Integer>() - b.get<Integer>()};
             case 1:
-                return a.as<Rational>() - b.as<Rational>();
+                return Number{a.as<Rational>() - b.as<Rational>()};
             case 2:
-                return a.as<Real>() - b.as<Real>();
+                return Number{a.as<Real>() - b.as<Real>()};
             default: // Impossible
                 throw std::runtime_error("Illegal arithmetic op!");
         }
@@ -241,11 +174,11 @@ namespace Spp::Numeric {
         int common_index = std::max(a.index(), b.index());
         switch (common_index) {
             case 0:
-                return a.get<Integer>() * b.get<Integer>();
+                return Number{a.get<Integer>() * b.get<Integer>()};
             case 1:
-                return a.as<Rational>() * b.as<Rational>();
+                return Number{a.as<Rational>() * b.as<Rational>()};
             case 2:
-                return a.as<Real>() * b.as<Real>();
+                return Number{a.as<Real>() * b.as<Real>()};
             default: // Impossible
                 throw std::runtime_error("Illegal arithmetic op!");
         }
@@ -255,11 +188,11 @@ namespace Spp::Numeric {
         int common_index = std::max(a.index(), b.index());
         switch (common_index) {
             case 0:
-                return Rational(a.get<Integer>()) / Rational(b.get<Integer>());
+                return Number{Rational(a.get<Integer>()) / Rational(b.get<Integer>())};
             case 1:
-                return a.as<Rational>() / b.as<Rational>();
+                return Number{a.as<Rational>() / b.as<Rational>()};
             case 2:
-                return a.as<Real>() / b.as<Real>();
+                return Number{a.as<Real>() / b.as<Real>()};
             default: // Impossible
                 throw std::runtime_error("Illegal arithmetic op!");
         }
@@ -285,6 +218,32 @@ namespace Spp::Numeric {
                 return to_string(v.get<Real>());
             default:
                 return "unknown value";
+        }
+    }
+
+    inline Number pow(const Number &a, int64_t b) {
+        Number ans = Number{1L};
+        Number tmp = a;
+        if (b < 0) {
+            tmp = Number{1L} / tmp;
+            b = -b;
+        }
+        while (b) {
+            if (b & 1) {
+                ans = ans * tmp;
+            }
+            tmp = tmp * tmp;
+            b >>= 1;
+        }
+        return ans;
+    }
+
+    inline Number pow(const Number &a, const Number &b) {
+        if (b.index() == 0) {
+            return pow(a, b.get<int64_t>());
+        } else {
+            Real base = a.as<Real>(), p = b.as<Real>();
+            return Number{std::pow(base, p)};
         }
     }
 }
