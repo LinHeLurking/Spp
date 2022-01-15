@@ -24,6 +24,18 @@ namespace Spp {
 
     struct Variable {
         string name_;
+
+        explicit Variable(const string &s) {
+            bool flag = true;
+            for (int i = 0; i < s.size() && flag; ++i) {
+                flag &= (s[i] == '_' || s[i] >= 'a' || s[i] <= 'z' || s[i] >= 'A' || s[i] <= 'Z');
+            }
+            if (flag) {
+                name_ = s;
+            } else {
+                throw std::runtime_error("Bad variable name: only accept a-zA-Z and underline(_) in variable names!");
+            }
+        }
     };
 
     string to_string(const Variable &variable) {
@@ -67,6 +79,8 @@ namespace Spp {
         explicit Expr(Number x) : root_(x) {}
 
         explicit Expr(Variable x) : root_(x) {}
+
+        explicit Expr(const string &s) : root_(Variable(s)) {}
 
         Expr(const Op &op, const vector<Expr> &operand) : root_(op), children_(operand) {}
 

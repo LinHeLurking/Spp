@@ -157,9 +157,9 @@ namespace Spp::Numeric {
 
     class Number {
     public:
-        template<typename ValueT>
-        Number(ValueT val) {
-            static_assert(is_numeric_v<ValueT>, "Not valid numeric type!");
+        template<typename ValueT, std::enable_if_t<is_numeric_v<ValueT>, bool> = true>
+        explicit Number(ValueT val) {
+//            static_assert(is_numeric_v<ValueT>, "Not valid numeric type!");
             if (std::is_integral_v<ValueT>) {
                 val_ = int64_t(val);
             } else if (std::is_floating_point_v<ValueT>) {
@@ -169,9 +169,9 @@ namespace Spp::Numeric {
             }
         }
 
-        template<typename ValueT>
+        template<typename ValueT, std::enable_if_t<is_numeric_v<ValueT>, bool> = true>
         Number &operator=(ValueT val) {
-            static_assert(is_numeric_v<ValueT>, "Not valid numeric type!");
+//            static_assert(is_numeric_v<ValueT>, "Not valid numeric type!");
             if (std::is_integral_v<ValueT>) {
                 val_ = int64_t(val);
             } else if (std::is_floating_point_v<ValueT>) {

@@ -14,7 +14,9 @@ int main() {
     Expr b{2};
     Expr c{3};
     Expr d{4};
-    auto x = (a + b) * (c - d);
+    Expr e{"x"};
+    Expr f{"y"};
+    auto x = (a + b) * (c - d) * (e - f);
     cout << x.to_string() << endl;
     cout << x.eval().to_string() << endl;
     return 0;
