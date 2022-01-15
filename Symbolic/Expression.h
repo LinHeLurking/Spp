@@ -26,7 +26,7 @@ namespace Spp {
         string name_;
     };
 
-    constexpr int L0_OP = 0, L1_OP = 1, L2_OP = 2;
+    constexpr int L0_OP = 0, L1_OP = 1, L2_OP = 2, LN_OP = 10000;
 
     struct Op {
         OpType type_;
@@ -70,8 +70,28 @@ namespace Spp {
             return Expr{AddOp(), {*this, rhs}};
         }
 
-        [[nodiscard]] bool is_single_number() const {
+        Expr operator-(const Expr &rhs) const {
+            return Expr{SubOp(), {*this, rhs}};
+        }
+
+        Expr operator*(const Expr &rhs) const {
+            return Expr{MulOp(), {*this, rhs}};
+        }
+
+        Expr operator/(const Expr &rhs) const {
+            return Expr{DivOp(), {*this, rhs}};
+        }
+
+        [[nodiscard]] inline bool is_single_number() const {
             return root_.index() == 0;
+        }
+
+        [[nodiscard]] inline int root_priority() const {
+            if (root_.index() != INDEX_OP) {
+                return LN_OP;
+            } else {
+                return std::get<Op>(root_).priority_;
+            }
         }
     };
 
@@ -83,10 +103,17 @@ namespace Spp {
                 case Add:
                 case Sub:
                 case Mul:
-                case Div:
-                    res << to_string(expr.children_[0]);
+                case Div: {
+                    bool left_child_bracket = expr.children_[0].root_priority() < expr.root_priority();
+                    bool right_child_bracket = expr.children_[1].root_priority() < expr.root_priority();
+                    res << (left_child_bracket ? "(" : "")
+                        << to_string(expr.children_[0])
+                        << (left_child_bracket ? ")" : "");
                     res << op.name_;
-                    res << to_string(expr.children_[1]);
+                    res << (right_child_bracket ? "(" : "")
+                        << to_string(expr.children_[1])
+                        << (right_child_bracket ? ")" : "");
+                }
                 case Function:
                     break;
             }
