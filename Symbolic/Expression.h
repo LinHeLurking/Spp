@@ -26,6 +26,10 @@ namespace Spp {
         string name_;
     };
 
+    string to_string(const Variable &variable) {
+        return variable.name_;
+    }
+
     constexpr int L0_OP = 0, L1_OP = 1, L2_OP = 2, LN_OP = 10000;
 
     struct Op {
@@ -83,7 +87,11 @@ namespace Spp {
         }
 
         [[nodiscard]] inline bool is_single_number() const {
-            return root_.index() == 0;
+            return root_.index() == INDEX_NUMBER && children_.empty();
+        }
+
+        [[nodiscard]] inline bool is_single_variable() const {
+            return root_.index() == INDEX_VARIABLE && children_.empty();
         }
 
         [[nodiscard]] inline int root_priority() const {
@@ -93,6 +101,26 @@ namespace Spp {
                 return std::get<Op>(root_).priority_;
             }
         }
+
+        [[nodiscard]] inline Number as_number() const {
+            if (this->is_single_number()) {
+                return std::get<Number>(root_);
+            } else {
+                throw std::runtime_error("Bad conversion: this is expression is not a number!");
+            }
+        }
+
+        [[nodiscard]] inline Variable as_variable() const {
+            if (this->is_single_variable()) {
+                return std::get<Variable>(root_);
+            } else {
+                throw std::runtime_error("Bad conversion: this is expression is not a variable!");
+            }
+        }
+
+        [[nodiscard]] string to_string() const;
+
+        Expr eval() const;
     };
 
     string to_string(const Expr &expr) {
@@ -118,13 +146,49 @@ namespace Spp {
                     break;
             }
         } else if (expr.root_.index() == INDEX_VARIABLE) {
-            const auto &variable = std::get<Variable>(expr.root_);
-            res << variable.name_;
+            res << to_string(expr.as_variable());
         } else if (expr.root_.index() == INDEX_NUMBER) {
-            const auto &number = std::get<Number>(expr.root_);
-            res << to_string(number);
+            res << to_string(expr.as_number());
         }
         return res.str();
+    }
+
+    Expr eval(const Expr &expr) {
+        if (expr.root_.index() != INDEX_OP) {
+            return expr;
+        } else {
+            const auto &op = std::get<Op>(expr.root_);
+            switch (op.type_) {
+                case Function:
+                    // TODO: fix this
+                    return expr; // returning an expr just for compiler return value check.
+                default: {
+                    const auto left = eval(expr.children_[0]);
+                    const auto right = eval(expr.children_[1]);
+                    bool combine = left.is_single_number() && right.is_single_number();
+                    switch (op.type_) {
+                        case Add:
+                            return combine ? Expr(left.as_number() + right.as_number()) : left + right;
+                        case Sub:
+                            return combine ? Expr(left.as_number() - right.as_number()) : left - right;
+                        case Mul:
+                            return combine ? Expr(left.as_number() * right.as_number()) : left * right;
+                        case Div:
+                            return combine ? Expr(left.as_number() / right.as_number()) : left / right;
+                        default: // Impossible
+                            throw std::runtime_error("Impossible evaluation dispatch.");
+                    }
+                }
+            }
+        }
+    }
+
+    string Expr::to_string() const {
+        return Spp::to_string(*this);
+    }
+
+    Expr Expr::eval() const {
+        return Spp::eval(*this);
     }
 }
 
