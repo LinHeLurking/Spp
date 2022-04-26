@@ -3,12 +3,15 @@
 
 #include "../../util/concept.h"
 #include <cstdint>
+#include <iostream>
 #include <numeric>
+#include <stdexcept>
 #include <type_traits>
 
 namespace Spp::SmartNumDetail {
 
 // using namespace Spp::Concept;
+using Spp::Concept::SignedInteger;
 using Spp::Concept::UnsignedInteger;
 
 template <typename T, typename U> using CT = std::common_type_t<T, U>;
@@ -19,14 +22,31 @@ class Rational {
 public:
   Rational(T nominator, T denominator, int sign = 1)
       : nominator_(nominator), denominator_(denominator) {
+    if (denominator_ == 0) {
+      throw std::runtime_error("Zero denominator!");
+    }
     sign_ = sign >= 0 ? 1 : -1;
     this->reduce();
   }
 
-  Rational(T k) {
+  template <typename U>
+  requires std::is_integral_v<U> Rational(U k) {
     sign_ = k >= 0 ? 1 : -1;
     nominator_ = k >= 0 ? k : -k;
     denominator_ = 1;
+  }
+
+  template <typename U>
+  requires std::is_floating_point_v<U> Rational(U x) {
+    throw std::runtime_error("Do not call float/double to Rational "
+                             "constructor! This is an intended error.");
+  }
+
+  // User-defined cast
+  template <typename U>
+  requires std::is_floating_point_v<U> || SignedInteger<U>
+  explicit operator U() const {
+    return U(sign_) * U(nominator_) / U(denominator_);
   }
 
   inline auto operator-() const {
@@ -49,6 +69,10 @@ public:
   }
 
   template <typename U>
+  requires std::is_floating_point_v<U>
+  inline bool operator==(const U rhs) const { return false; }
+
+  template <typename U>
   requires std::is_integral_v<U>
   inline auto operator+(const U rhs) const {
     auto r = make_rational(rhs);
@@ -62,6 +86,16 @@ public:
   }
 
   template <typename U>
+  requires std::is_floating_point_v<U>
+  inline auto operator+(const U rhs) const { return U(*this) + rhs; }
+
+  template <typename U>
+  requires std::is_floating_point_v<U>
+  friend inline auto operator+(const U lhs, const Rational &rhs) {
+    return lhs + U(rhs);
+  }
+
+  template <typename U>
   requires std::is_integral_v<U>
   inline auto operator-(const U rhs) const {
     auto r = make_rational(rhs);
@@ -72,6 +106,16 @@ public:
   requires std::is_integral_v<U>
   friend inline auto operator-(const U lhs, const Rational &rhs) {
     return (-rhs) + lhs;
+  }
+
+  template <typename U>
+  requires std::is_floating_point_v<U>
+  inline auto operator-(const U rhs) const { return U(*this) - rhs; }
+
+  template <typename U>
+  requires std::is_floating_point_v<U>
+  friend inline auto operator-(const U lhs, const Rational &rhs) {
+    return lhs - U(rhs);
   }
 
   template <typename U>
@@ -89,10 +133,37 @@ public:
   }
 
   template <typename U>
+  requires std::is_floating_point_v<U>
+  inline auto operator*(const U rhs) const { return U(*this) * rhs; }
+
+  template <typename U>
+  requires std::is_floating_point_v<U>
+  friend inline auto operator*(const U lhs, const Rational &rhs) {
+    return lhs * U(rhs);
+  }
+
+  template <typename U>
+  requires std::is_integral_v<U>
+  inline auto operator/(const U rhs) const {
+    auto r = make_rational(rhs);
+    return *this / r;
+  }
+
+  template <typename U>
   requires std::is_integral_v<U>
   friend inline auto operator/(const U lhs, const Rational &rhs) {
     auto l = make_rational(lhs);
     return l / rhs;
+  }
+
+  template <typename U>
+  requires std::is_floating_point_v<U>
+  inline auto operator/(const U rhs) const { return U(*this) / rhs; }
+
+  template <typename U>
+  requires std::is_floating_point_v<U>
+  friend inline auto operator/(const U lhs, const Rational &rhs) {
+    return lhs / U(rhs);
   }
 
   /**
@@ -117,6 +188,21 @@ public:
   template <typename U, typename V>
   friend inline auto operator/(const Rational<U> &lhs, const Rational<V> &rhs);
 
+  /**
+   * I/O overload.
+   */
+  friend inline std::ostream &operator<<(std::ostream &os, const Rational &r) {
+    if (r.sign_ == -1) {
+      os << "-";
+    }
+    os << r.nominator_;
+    if (r.denominator_ > 1) {
+      os << '/' << r.denominator_;
+    }
+    os << std::endl;
+    return os;
+  }
+
 private:
   template <typename U>
   requires std::is_integral_v<U>
@@ -132,6 +218,10 @@ private:
   int sign_;
   T nominator_, denominator_;
 };
+
+/**
+ * Definitions
+ */
 
 template <typename U, typename V>
 inline bool operator==(const Rational<U> &lhs, const Rational<V> &rhs) {
@@ -189,7 +279,6 @@ inline auto operator/(const Rational<U> &lhs, const Rational<V> &rhs) {
   auto y = R(lhs.denominator_) * R(rhs.nominator_);
   return Rational<R>(x, y, s);
 }
-
 } // namespace Spp::SmartNumDetail
 
 #endif // !RATIONAL_H

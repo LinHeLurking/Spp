@@ -20,8 +20,11 @@ macro(spp_test _target _src _test_src)
   unset(_all_src)
 endmacro()
 
-set(_RATIONAL_SRC "smart_num/rational/rational.h")
+set(_RATIONAL_SRC "smart_num/rational/rational.h" "util/concept.h")
 set(_RATIONAL_TEST_SRC "smart_num/rational/rational_test.cpp")
 
-spp_test(rational_test "${_RATIONAL_SRC}" "${_RATIONAL_TEST_SRC}")
+set(_SMART_NUM_SRC "smart_num/smart_num.h" "util/concept.h" "${_RATIONAL_SRC}")
+set(_SMART_NUM_TEST_SRC "smart_num/smart_num_test.cpp")
 
+spp_test(rational_test "${_RATIONAL_SRC}" "${_RATIONAL_TEST_SRC}")
+spp_test(smart_num_test "${_SMART_NUM_SRC}" "${_SMART_NUM_TEST_SRC}")

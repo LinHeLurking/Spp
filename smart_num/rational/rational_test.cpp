@@ -94,3 +94,9 @@ TEST(RationalTest, DivTest) {
   EXPECT_EQ(a / b, -2);
   EXPECT_EQ(b / a, -a);
 }
+
+TEST(RationalTest, CastTest) {
+  auto a = double(Rational<>(1, 2));
+  auto b = 0.5;
+  EXPECT_NEAR(a, b, 1e-6);
+}
