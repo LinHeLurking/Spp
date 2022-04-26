@@ -1,0 +1,27 @@
+project(Spp)
+
+cmake_minimum_required(VERSION 3.16)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+# Google test
+add_subdirectory(extern/gtest)
+include(GoogleTest)
+
+macro(spp_test _target _src _test_src)
+  set(_all_src "${_src}" "${_test_src}")
+  message(STATUS "Setting tests for ${_target}")
+  message(STATUS "src: ${_src}")
+  message(STATUS "test src: ${_test_src}")
+  add_executable(${_target} "${_all_src}")
+  target_link_libraries("${_target}" gtest_main)
+  unset(_all_src)
+endmacro()
+
+set(_RATIONAL_SRC "smart_num/rational/rational.h")
+set(_RATIONAL_TEST_SRC "smart_num/rational/rational_test.cpp")
+
+spp_test(rational_test "${_RATIONAL_SRC}" "${_RATIONAL_TEST_SRC}")
+
