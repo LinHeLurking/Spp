@@ -1,7 +1,7 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
 
-#include "../../util/concept.h"
+#include "../../../util/concept.h"
 #include <cstdint>
 #include <iostream>
 #include <numeric>

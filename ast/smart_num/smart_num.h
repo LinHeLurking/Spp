@@ -1,7 +1,7 @@
 #ifndef SMART_NUM_H
 #define SMART_NUM_H
 
-#include "../util/concept.h"
+#include "../../util/concept.h"
 #include "rational/rational.h"
 #include <algorithm>
 #include <functional>
