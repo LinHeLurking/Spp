@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace Spp::SmartNumDetail {
+namespace Spp::__SmartNum::__Detail {
 
 // using namespace Spp::Concept;
 using Spp::Concept::SignedInteger;
@@ -279,6 +279,6 @@ inline auto operator/(const Rational<U> &lhs, const Rational<V> &rhs) {
   auto y = R(lhs.denominator_) * R(rhs.nominator_);
   return Rational<R>(x, y, s);
 }
-} // namespace Spp::SmartNumDetail
+} // namespace Spp::__SmartNum::__Detail
 
 #endif // !RATIONAL_H

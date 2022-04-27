@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-using Spp::SmartNum;
+using Spp::__SmartNum::SmartNum;
 using std::vector;
 
 TEST(SmartNumTest, EqTest) {

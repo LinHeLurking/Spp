@@ -1,7 +1,7 @@
 #include "rational.h"
 #include <gtest/gtest.h>
 
-using namespace Spp::SmartNumDetail;
+using namespace Spp::__SmartNum::__Detail;
 
 TEST(RationalTest, EqTest) {
   // This will fail to compile if everything is coded right.

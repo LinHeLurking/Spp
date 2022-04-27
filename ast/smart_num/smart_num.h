@@ -6,14 +6,16 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <numbers>
 #include <tuple>
 #include <type_traits>
 #include <variant>
-namespace Spp {
+
+namespace Spp::__SmartNum {
 
 class SmartNum {
 public:
-  using Rational = SmartNumDetail::Rational<>;
+  using Rational = __Detail::Rational<>;
   using Value = std::variant<int64_t, Rational, double>;
 
   template <typename T>
@@ -47,6 +49,12 @@ public:
   }
 
   SmartNum(const Rational &r) : value_(r) {}
+
+  static inline auto one() { return SmartNum(1); };
+
+  static inline auto zero() { return SmartNum(0); };
+
+  static inline auto pi() { return SmartNum(std::numbers::pi); }
 
   inline bool operator==(const SmartNum &rhs) const {
     auto [x, y] = shift(value_, rhs.value_);
@@ -113,6 +121,6 @@ private:
     }
   }
 };
-} // namespace Spp
+} // namespace Spp::__SmartNum
 
 #endif // !SMART_NUM_H
