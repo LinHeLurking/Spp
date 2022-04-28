@@ -6,13 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include "node.h"
-#include "operand/number.h"
-#include "operator/add.h"
-#include "operator/base.h"
-#include "operator/div.h"
-#include "operator/mul.h"
-#include "operator/sub.h"
+#include "ast.h"
 
 using std::cout;
 using std::endl;

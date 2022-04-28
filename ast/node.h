@@ -1,5 +1,5 @@
-#ifndef AST_NODE_H
-#define AST_NODE_H
+#ifndef SPP_AST_NODE_H
+#define SPP_AST_NODE_H
 
 #include <iostream>
 #include <memory>

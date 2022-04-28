@@ -1,12 +1,13 @@
-#ifndef RATIONAL_H
-#define RATIONAL_H
+#ifndef SPP_SMART_NUM_RATIONAL_H
+#define SPP_SMART_NUM_RATIONAL_H
 
-#include "../../../util/concept.h"
 #include <cstdint>
 #include <iostream>
 #include <numeric>
 #include <stdexcept>
 #include <type_traits>
+
+#include "../../../util/concept.h"
 
 namespace Spp::__SmartNum::__Detail {
 
@@ -14,12 +15,13 @@ namespace Spp::__SmartNum::__Detail {
 using Spp::Concept::SignedInteger;
 using Spp::Concept::UnsignedInteger;
 
-template <typename T, typename U> using CT = std::common_type_t<T, U>;
+template <typename T, typename U>
+using CT = std::common_type_t<T, U>;
 
 template <typename T = uint64_t>
 requires UnsignedInteger<T>
 class Rational {
-public:
+ public:
   Rational(T nominator, T denominator, int sign = 1)
       : nominator_(nominator), denominator_(denominator) {
     if (denominator_ == 0) {
@@ -38,8 +40,9 @@ public:
 
   template <typename U>
   requires std::is_floating_point_v<U> Rational(U x) {
-    throw std::runtime_error("Do not call float/double to Rational "
-                             "constructor! This is an intended error.");
+    throw std::runtime_error(
+        "Do not call float/double to Rational "
+        "constructor! This is an intended error.");
   }
 
   // User-defined cast
@@ -203,7 +206,7 @@ public:
     return os;
   }
 
-private:
+ private:
   template <typename U>
   requires std::is_integral_v<U>
   static inline auto make_rational(U n) {
@@ -279,6 +282,6 @@ inline auto operator/(const Rational<U> &lhs, const Rational<V> &rhs) {
   auto y = R(lhs.denominator_) * R(rhs.nominator_);
   return Rational<R>(x, y, s);
 }
-} // namespace Spp::__SmartNum::__Detail
+}  // namespace Spp::__SmartNum::__Detail
 
-#endif // !RATIONAL_H
+#endif  // !SPP_SMART_NUM_RATIONAL_H

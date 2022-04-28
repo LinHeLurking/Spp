@@ -1,8 +1,6 @@
-#ifndef SMART_NUM_H
-#define SMART_NUM_H
+#ifndef SPP_SMART_NUM_H
+#define SPP_SMART_NUM_H
 
-#include "../../util/concept.h"
-#include "rational/rational.h"
 #include <algorithm>
 #include <functional>
 #include <iostream>
@@ -11,10 +9,13 @@
 #include <type_traits>
 #include <variant>
 
+#include "../../util/concept.h"
+#include "rational/rational.h"
+
 namespace Spp::__SmartNum {
 
 class SmartNum {
-public:
+ public:
   using Rational = __Detail::Rational<>;
   using Value = std::variant<int64_t, Rational, double>;
 
@@ -27,8 +28,8 @@ public:
   explicit SmartNum(T x) : value_(double(x)) {}
 
   template <typename T, typename U>
-  requires std::is_integral_v<T> && std::is_integral_v<U>
-  SmartNum(T nominator, U denominator, int sign = 1) {
+  requires std::is_integral_v<T> && std::is_integral_v<U> SmartNum(
+      T nominator, U denominator, int sign = 1) {
     using R =
         std::common_type_t<std::make_unsigned_t<T>, std::make_unsigned_t<U>>;
     R n;
@@ -100,7 +101,7 @@ public:
     return os;
   }
 
-private:
+ private:
   Value value_;
 
   template <typename T>
@@ -116,11 +117,11 @@ private:
       return shift<int64_t>(a, b);
     } else if (idx == 1) {
       return shift<Rational>(a, b);
-    } else { // idx == 2
+    } else {  // idx == 2
       return shift<double>(a, b);
     }
   }
 };
-} // namespace Spp::__SmartNum
+}  // namespace Spp::__SmartNum
 
-#endif // !SMART_NUM_H
+#endif  // !SMART_NUM_H

@@ -1,5 +1,5 @@
-#ifndef AST_OPERATOR_ADD_H
-#define AST_OPERATOR_ADD_H
+#ifndef SPP_AST_OPERATOR_ADD_H
+#define SPP_AST_OPERATOR_ADD_H
 
 #include "base.h"
 
@@ -11,4 +11,4 @@ class AddOp : public OperatorBase {
 };
 }  // namespace Spp::__Ast
 
-#endif  // !AST_OPERATOR_ADD_H
+#endif  // !SPP_AST_OPERATOR_ADD_H

@@ -1,5 +1,5 @@
-#ifndef AST_OPERATOR_NEG_H
-#define AST_OPERATOR_NEG_H
+#ifndef SPP_AST_OPERATOR_NEG_H
+#define SPP_AST_OPERATOR_NEG_H
 
 #include "base.h"
 namespace Spp::__Ast {
@@ -10,4 +10,4 @@ class NegOp : public OperatorBase {
 };
 }  // namespace Spp::__Ast
 
-#endif  // !AST_OPERATOR_NEG_H
+#endif  // !SPP_AST_OPERATOR_NEG_H

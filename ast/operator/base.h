@@ -1,5 +1,5 @@
-#ifndef AST_OPERATOR_BASE_H
-#define AST_OPERATOR_BASE_H
+#ifndef SPP_AST_OPERATOR_BASE_H
+#define SPP_AST_OPERATOR_BASE_H
 
 #include <cstdint>
 #include <sstream>
@@ -95,4 +95,4 @@ class OperatorBase : public Node {
 };
 }  // namespace Spp::__Ast
 
-#endif  // !AST_OPERATOR_BASE_H
+#endif  // !SPP_AST_OPERATOR_BASE_H

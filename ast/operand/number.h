@@ -1,5 +1,5 @@
-#ifndef AST_OPPERAND_NUMBER_H
-#define AST_OPPERAND_NUMBER_H
+#ifndef SPP_AST_OPPERAND_NUMBER_H
+#define SPP_AST_OPPERAND_NUMBER_H
 
 #include <sstream>
 #include <type_traits>
@@ -31,4 +31,4 @@ class Number : public OperandBase {
 };
 }  // namespace Spp::__Ast
 
-#endif  // !AST_OPPERAND_NUMBER_H
+#endif  // !SPP_AST_OPPERAND_NUMBER_H

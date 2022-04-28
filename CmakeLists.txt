@@ -29,7 +29,7 @@ set(_SMART_NUM_TEST_SRC "ast/smart_num/test.cpp")
 spp_test(rational_test "${_RATIONAL_SRC}" "${_RATIONAL_TEST_SRC}")
 spp_test(smart_num_test "${_SMART_NUM_SRC}" "${_SMART_NUM_TEST_SRC}")
 
-set(_AST_SRC "ast/operator/base.h" "ast/operator/neg.h" 
+set(_AST_SRC "ast/operator/base.h" "ast/ast.h" "ast/operator/neg.h" 
 "ast/operator/add.h" "ast/operator/sub.h" "ast/operator/mul.h" "ast/operator/div.h"
 "ast/operand/base.h" "ast/operand/number.h" "ast/node.h"
 "${_SMART_NUM_SRC}")
