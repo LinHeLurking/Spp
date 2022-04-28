@@ -30,6 +30,16 @@ class Expression {
   Expression(Expression &&expr) : ast_(std::move(expr.ast_)) {}
   Expression(const Expression &expr) : ast_(expr.ast_->deep_copy()) {}
 
+  Expression &operator=(const Expression &expr) {
+    ast_ = expr.ast_->deep_copy();
+    return *this;
+  }
+
+  Expression &&operator=(Expression &&expr) {
+    ast_ = std::move(expr.ast_);
+    return std::move(*this);
+  }
+
   template <typename T>
   requires SignedInteger<T> || std::is_floating_point_v<T>
   explicit Expression(T x) : ast_(Asts::number(x)) {}

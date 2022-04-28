@@ -16,7 +16,7 @@
 namespace Spp::__Ast {
 using Spp::__Concept::SignedInteger;
 using Spp::__Concept::UnsignedInteger;
-using SmartNum = __SmartNum::SmartNum;
+// using SmartNum = __SmartNum::SmartNum;
 // Helpers to create ast UniqueNode
 class UniqueNodes {
  public:
