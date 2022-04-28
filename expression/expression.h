@@ -82,6 +82,14 @@ class Expression {
     return os;
   }
 
+  /**
+   * Evaluate this.
+   */
+  Expression &eval() {
+    ast_ = std::move(ast_->eval(std::move(ast_)));
+    return *this;
+  }
+
  private:
   Ast ast_;
 

@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <variant>
 
-#include "../../util/concept.h"
+#include "../../../util/concept.h"
 #include "rational/rational.h"
 
 namespace Spp::__SmartNum {
@@ -18,6 +18,8 @@ class SmartNum {
  public:
   using Rational = __Detail::Rational<>;
   using Value = std::variant<int64_t, Rational, double>;
+
+  SmartNum() = default;
 
   template <typename T>
   requires std::is_integral_v<T>

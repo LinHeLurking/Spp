@@ -6,6 +6,7 @@
 #include <string>
 
 namespace Spp::__Ast {
+
 class Node;
 
 using UniqueNode = std::unique_ptr<Node>;
@@ -20,6 +21,13 @@ class Node {
   virtual uint priority() const = 0;
 
   virtual std::string to_string() const = 0;
+
+  virtual bool is_number() const { return false; }
+
+  virtual bool is_variable() const { return false; }
+
+  virtual UniqueNode eval(UniqueNode&& self) = 0;
+
   virtual UniqueNode deep_copy() const = 0;
 
   friend inline std::ostream& operator<<(std::ostream& os, const Node& n) {

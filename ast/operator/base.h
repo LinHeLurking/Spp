@@ -1,24 +1,46 @@
 #ifndef SPP_AST_OPERATOR_BASE_H
 #define SPP_AST_OPERATOR_BASE_H
 
+#include <array>
+#include <cassert>
 #include <cstdint>
+#include <memory>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
 #include "../node.h"
+#include "../operand/number.h"
 
 namespace Spp::__Ast {
 
 enum class PosType { prefix_op, prefix_func, infix };
 
 class OperatorBase : public Node {
- private:
+ protected:
+  using SmartNum = __SmartNum::SmartNum;
   std::string name_;
   uint priority_;
   std::vector<UniqueNode> child_;
   PosType pos_;
+
+  inline void eval_sub_tree() {
+    for (uint32_t i = 0; i < child_.size(); ++i) {
+      child_[i] = std::move(child_[i]->eval(std::move(child_[i])));
+    }
+  }
+
+  template <uint64_t N>
+  inline std::array<SmartNum, N> get_num_unchecked() const {
+    assert(N == child_.size());
+    std::array<SmartNum, N> ans;
+    for (uint64_t i = 0; i < N; ++i) {
+      ans[i] = NumberAccessor::get_num_unchecked(child_[i]);
+    }
+    return ans;
+  }
 
  public:
   template <typename StrT, typename... NodeT>
@@ -80,16 +102,17 @@ class OperatorBase : public Node {
     return ss.str();
   }
 
-  UniqueNode deep_copy() const override {
-    std::vector<UniqueNode> copy_child;
-    copy_child.reserve(child_.size());
-    for (auto &child : child_) {
-      copy_child.emplace_back(child->deep_copy());
-    }
-    auto content = new OperatorBase(name_, priority_, pos_, copy_child.begin(),
-                                    copy_child.end());
-    return UniqueNode(content);
-  }
+  // UniqueNode deep_copy(const UniqueNode &self) const override {
+  //   std::vector<UniqueNode> copy_child;
+  //   copy_child.reserve(child_.size());
+  //   for (auto &child : child_) {
+  //     copy_child.emplace_back(child->deep_copy());
+  //   }
+  //   auto content = new OperatorBase(name_, priority_, pos_,
+  //   copy_child.begin(),
+  //                                   copy_child.end());
+  //   return UniqueNode(content);
+  // }
 
 // Test helpers
 #ifndef NDEBUEG

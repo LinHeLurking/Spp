@@ -74,7 +74,33 @@ TEST(ExprTest, NegTest) {
     }                               \
   }
 
-TEST(ExprTest, AddTest) { TEST_BIN_OP(+); }
-TEST(ExprTest, SubTest) { TEST_BIN_OP(-); }
-TEST(ExprTest, MulTest) { TEST_BIN_OP(*); }
+#define TEST_BIN_EVAL_SINGLE(op, i, j) \
+  {                                    \
+    Expression a{i};                   \
+    Expression b{j};                   \
+    auto c = (a op b).eval();          \
+    auto x = c.to_string();            \
+    x = remove_whitespace(x);          \
+    EXPECT_EQ(x, to_string(i op j));   \
+  }
+
+#define TEST_BIN_EVAL(op)             \
+  for (int i = 0; i < 100; ++i) {     \
+    for (int j = 0; j < 100; ++j) {   \
+      TEST_BIN_EVAL_SINGLE(op, i, j); \
+    }                                 \
+  }
+
+TEST(ExprTest, AddTest) {
+  TEST_BIN_OP(+);
+  TEST_BIN_EVAL(+);
+}
+TEST(ExprTest, SubTest) {
+  TEST_BIN_OP(-);
+  TEST_BIN_EVAL(-);
+}
+TEST(ExprTest, MulTest) {
+  TEST_BIN_OP(*);
+  TEST_BIN_EVAL(*);
+}
 TEST(ExprTest, DivTest) { TEST_BIN_OP(/); }
