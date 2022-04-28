@@ -7,11 +7,11 @@
 #include <type_traits>
 #include <vector>
 
-#include "../ast_node.h"
+#include "../node.h"
 
 namespace Spp::__Ast {
 
-enum class PosType { prefix, infix };
+enum class PosType { prefix_op, prefix_func, infix };
 
 class OperatorBase : public Node {
  private:
@@ -50,7 +50,13 @@ class OperatorBase : public Node {
   std::string to_string() const override {
     std::stringstream ss;
     switch (pos_) {
-      case PosType::prefix: {
+      case PosType::prefix_op: {
+        ss << name_;
+        for (auto &child : child_) {
+          ss << child->to_string();
+        }
+      }
+      case PosType::prefix_func: {
         ss << name_ << '(';
         for (uint i = 0; i < child_.size(); ++i) {
           ss << child_[i]->to_string();

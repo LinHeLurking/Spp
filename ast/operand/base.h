@@ -3,7 +3,7 @@
 
 #include <limits>
 
-#include "../ast_node.h"
+#include "../node.h"
 
 namespace Spp::__Ast {
 class OperandBase : public Node {

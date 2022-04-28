@@ -4,7 +4,7 @@
 #include <sstream>
 #include <type_traits>
 
-#include "../ast_node.h"
+#include "../node.h"
 #include "../smart_num/smart_num.h"
 #include "base.h"
 

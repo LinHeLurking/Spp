@@ -6,7 +6,7 @@
 namespace Spp::__Ast {
 class AddOp : public OperatorBase {
  public:
-  AddOp(UniqueNode l, UniqueNode r)
+  AddOp(UniqueNode &l, UniqueNode &r)
       : OperatorBase("+", 1, PosType::infix, std::move(l), std::move(r)) {}
 };
 }  // namespace Spp::__Ast
