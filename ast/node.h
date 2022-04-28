@@ -10,6 +10,10 @@ class Node;
 
 using UniqueNode = std::unique_ptr<Node>;
 
+template <typename T>
+inline constexpr bool is_unique_node =
+    std::is_same_v<UniqueNode, std::decay_t<T>>;
+
 class Node {
  public:
   virtual ~Node() {}

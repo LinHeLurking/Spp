@@ -6,7 +6,8 @@
 namespace Spp::__Ast {
 class SubOp : public OperatorBase {
  public:
-  SubOp(UniqueNode &l, UniqueNode &r)
+  template <typename T, typename U>
+  requires is_unique_node<T> && is_unique_node<U> SubOp(T &&l, U &&r)
       : OperatorBase("-", 1, PosType::infix, std::move(l), std::move(r)){};
 };
 }  // namespace Spp::__Ast

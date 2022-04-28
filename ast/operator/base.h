@@ -55,6 +55,7 @@ class OperatorBase : public Node {
         for (auto &child : child_) {
           ss << child->to_string();
         }
+        break;
       }
       case PosType::prefix_func: {
         ss << name_ << '(';
@@ -63,6 +64,7 @@ class OperatorBase : public Node {
           if (i != child_.size() - 1) ss << ", ";
         }
         ss << ')';
+        break;
       }
       case PosType::infix: {
         if (child_[0]->priority() < priority_) ss << '(';
@@ -72,6 +74,7 @@ class OperatorBase : public Node {
         if (child_[1]->priority() < priority_) ss << '(';
         ss << child_[1]->to_string();
         if (child_[1]->priority() < priority_) ss << ')';
+        break;
       }
     }
     return ss.str();

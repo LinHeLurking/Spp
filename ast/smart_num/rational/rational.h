@@ -12,8 +12,8 @@
 namespace Spp::__SmartNum::__Detail {
 
 // using namespace Spp::Concept;
-using Spp::Concept::SignedInteger;
-using Spp::Concept::UnsignedInteger;
+using Spp::__Concept::SignedInteger;
+using Spp::__Concept::UnsignedInteger;
 
 template <typename T, typename U>
 using CT = std::common_type_t<T, U>;

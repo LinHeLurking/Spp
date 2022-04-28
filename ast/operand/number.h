@@ -3,17 +3,23 @@
 
 #include <sstream>
 #include <type_traits>
+#include <utility>
 
 #include "../node.h"
 #include "../smart_num/smart_num.h"
 #include "base.h"
 
 namespace Spp::__Ast {
+
+using SmartNum = Spp::__SmartNum::SmartNum;
+
 class Number : public OperandBase {
  public:
-  template <typename T>
-  requires std::is_constructible_v<T, Spp::__SmartNum::SmartNum>
-  explicit Number(const T& v) : value_(v) {}
+  explicit Number(const __SmartNum::SmartNum& v) : value_(v) {}
+
+  template <typename... T>
+  requires std::is_constructible_v<SmartNum, T...>
+  explicit Number(T... v) : value_((v, ...)) {}
 
   std::string to_string() const override {
     std::stringstream ss;
@@ -26,7 +32,6 @@ class Number : public OperandBase {
   }
 
  private:
-  using SmartNum = Spp::__SmartNum::SmartNum;
   SmartNum value_;
 };
 }  // namespace Spp::__Ast

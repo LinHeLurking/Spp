@@ -5,7 +5,8 @@
 namespace Spp::__Ast {
 class NegOp : public OperatorBase {
  public:
-  NegOp(UniqueNode &sub)
+  template <typename T>
+  requires is_unique_node<T> NegOp(T &&sub)
       : OperatorBase("-", 0, PosType::prefix_op, std::move(sub)) {}
 };
 }  // namespace Spp::__Ast

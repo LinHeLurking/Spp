@@ -38,3 +38,8 @@ set(_AST_TEST_SRC "ast/test.cpp" "${_AST_SRC}")
 
 spp_test(ast_test "${_AST_SRC}" "${_AST_TEST_SRC}")
 
+set(_EXPRESSION_SRC "expression/expression.h")
+set(_EXPRESSION_TEST_SRC "expression/test.cpp")
+
+spp_test(expr_test "${_EXPRESSION_SRC}" "${_EXPRESSION_TEST_SRC}")
+
