@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string>
 
-#include "expression.h"
+#include "../expression.h"
 
 using namespace Spp;
 using namespace std;
@@ -92,16 +92,16 @@ TEST(ExprTest, NegTest) {
     }                                 \
   }
 
-TEST(ExprTest, AddTest) {
+TEST(ExprArithmeticTest, AddTest) {
   TEST_BIN_OP(+);
   TEST_BIN_EVAL(+);
 }
-TEST(ExprTest, SubTest) {
+TEST(ExprArithmeticTest, SubTest) {
   TEST_BIN_OP(-);
   TEST_BIN_EVAL(-);
 }
-TEST(ExprTest, MulTest) {
+TEST(ExprArithmeticTest, MulTest) {
   TEST_BIN_OP(*);
   TEST_BIN_EVAL(*);
 }
-TEST(ExprTest, DivTest) { TEST_BIN_OP(/); }
+TEST(ExprArithmeticTest, DivTest) { TEST_BIN_OP(/); }

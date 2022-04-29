@@ -12,7 +12,7 @@ class DivOp : public OperatorBase {
   UniqueNode eval(UniqueNode &&self) override {
     assert(self.get() == this);
     eval_sub_tree();
-    if (child_[0]->is_number() && child_[1]->is_number()) {
+    if (all_child_num()) {
       auto [l, r] = get_num_unchecked<2>();
       return UniqueNode(new Number(l / r));
     }

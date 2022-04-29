@@ -1,7 +1,9 @@
 #ifndef SPP_AST_OPERATOR_SUB_H
 #define SPP_AST_OPERATOR_SUB_H
 
+#include "add.h"
 #include "base.h"
+#include "neg.h"
 
 namespace Spp::__Ast {
 class SubOp : public OperatorBase {
@@ -13,11 +15,17 @@ class SubOp : public OperatorBase {
   UniqueNode eval(UniqueNode &&self) override {
     assert(self.get() == this);
     eval_sub_tree();
-    if (child_[0]->is_number() && child_[1]->is_number()) {
+    if (all_child_num()) {
       auto [l, r] = get_num_unchecked<2>();
       return UniqueNode(new Number(l - r));
     }
     return std::move(self);
+  }
+
+  UniqueNode expand_add(UniqueNode &&self) override {
+    expand_add_sub_tree();
+    auto r = UniqueNode(new NegOp(std::move(child_[1])));
+    return UniqueNode(new AddOp(std::move(child_[0]), std::move(r)));
   }
 
   UniqueNode deep_copy() const override {

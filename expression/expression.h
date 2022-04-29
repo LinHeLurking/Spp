@@ -28,15 +28,24 @@ inline constexpr bool is_self_or_ref =
 class Expression {
  public:
   Expression(Expression &&expr) : ast_(std::move(expr.ast_)) {}
-  Expression(const Expression &expr) : ast_(expr.ast_->deep_copy()) {}
-
-  Expression &operator=(const Expression &expr) {
-    ast_ = expr.ast_->deep_copy();
-    return *this;
+  Expression(const Expression &expr) : ast_(expr.ast_->deep_copy()) {
+#ifndef NDEBUG
+    // This is used to inform protential optimizations.
+    // In most cases, such copies are redundant.
+    std::cout << "Expression copy construct" << std::endl;
+#endif
   }
 
   Expression &&operator=(Expression &&expr) {
     ast_ = std::move(expr.ast_);
+    return std::move(*this);
+  }
+
+  Expression &&operator=(const Expression &expr) {
+#ifndef NDEBUG
+    std::cout << "Expression copy assignment" << std::endl;
+#endif
+    ast_ = expr.ast_->deep_copy();
     return std::move(*this);
   }
 
@@ -95,9 +104,17 @@ class Expression {
   /**
    * Evaluate this.
    */
-  Expression &eval() {
+  Expression &&eval() {
     ast_ = std::move(ast_->eval(std::move(ast_)));
-    return *this;
+    return std::move(*this);
+  }
+
+  /**
+   * Expand all add operations. (a+b)*(c+d) => ac + ad + bc + bd
+   */
+  Expression &&expand_add() {
+    ast_ = std::move(ast_->expand_add(std::move(ast_)));
+    return std::move(*this);
   }
 
  private:

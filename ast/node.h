@@ -15,6 +15,12 @@ template <typename T>
 inline constexpr bool is_unique_node =
     std::is_same_v<UniqueNode, std::decay_t<T>>;
 
+enum class NodeTag {
+  Number,
+  Variable,
+  Operator,
+};
+
 class Node {
  public:
   virtual ~Node() {}
@@ -22,11 +28,24 @@ class Node {
 
   virtual std::string to_string() const = 0;
 
-  virtual bool is_number() const { return false; }
+  /**
+   * Indicate the node category, which is one of Number, Variable and Operator.
+   * One category contains several "types" of Node.
+   */
+  virtual NodeTag tag() const = 0;
 
-  virtual bool is_variable() const { return false; }
-
+  /**
+   * Evaluate as many numeric nodes as possible.
+   */
   virtual UniqueNode eval(UniqueNode&& self) = 0;
+
+  /**
+   * Expand all "Add" operations.
+   * Example:
+   *     1) (1+2)*(3+4) => 1*3 + 1*4 + 2*3 + 2*4
+   *     2) 1-2 => 1 + (-2)
+   */
+  virtual UniqueNode expand_add(UniqueNode&& self) = 0;
 
   virtual UniqueNode deep_copy() const = 0;
 

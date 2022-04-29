@@ -12,7 +12,7 @@ class NegOp : public OperatorBase {
   UniqueNode eval(UniqueNode &&self) override {
     assert(self.get() == this);
     eval_sub_tree();
-    if (child_[0]->is_number()) {
+    if (all_child_num()) {
       auto [sub] = get_num_unchecked<1>();
       return UniqueNode(new Number(-sub));
     }

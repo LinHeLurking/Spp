@@ -27,7 +27,7 @@ class Number : public OperandBase {
     return ss.str();
   }
 
-  bool is_number() const override { return true; }
+  NodeTag tag() const override { return NodeTag::Number; }
 
   UniqueNode eval(UniqueNode&& self) override { return std::move(self); }
 

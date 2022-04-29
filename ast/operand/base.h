@@ -9,6 +9,8 @@ namespace Spp::__Ast {
 class OperandBase : public Node {
  public:
   uint priority() const override { return std::numeric_limits<uint>::max(); }
+
+  UniqueNode expand_add(UniqueNode &&self) override { return std::move(self); }
 };
 
 }  // namespace Spp::__Ast

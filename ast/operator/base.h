@@ -13,6 +13,7 @@
 
 #include "../node.h"
 #include "../operand/number.h"
+// #include "mul.h"
 
 namespace Spp::__Ast {
 
@@ -20,6 +21,7 @@ enum class PosType { prefix_op, prefix_func, infix };
 
 class OperatorBase : public Node {
  protected:
+  friend class MulOp;
   using SmartNum = __SmartNum::SmartNum;
   std::string name_;
   uint priority_;
@@ -32,12 +34,36 @@ class OperatorBase : public Node {
     }
   }
 
+  inline void expand_add_sub_tree() {
+    for (uint32_t i = 0; i < child_.size(); ++i) {
+      child_[i] = std::move(child_[i]->expand_add(std::move(child_[i])));
+    }
+  }
+
+  inline bool all_child_num() const {
+    for (const auto &child : child_) {
+      if (child->tag() != NodeTag::Number) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   template <uint64_t N>
   inline std::array<SmartNum, N> get_num_unchecked() const {
     assert(N == child_.size());
     std::array<SmartNum, N> ans;
     for (uint64_t i = 0; i < N; ++i) {
       ans[i] = NumberAccessor::get_num_unchecked(child_[i]);
+    }
+    return ans;
+  }
+
+  inline std::vector<SmartNum> get_num_unchecked(uint64_t N) const {
+    assert(N == child_.size());
+    std::vector<SmartNum> ans;
+    for (uint64_t i = 0; i < N; ++i) {
+      ans.emplace_back(NumberAccessor::get_num_unchecked(child_[i]));
     }
     return ans;
   }
@@ -58,16 +84,22 @@ class OperatorBase : public Node {
     // Can campare
     std::declval<RandIt>() == std::declval<RandIt>();
     std::declval<RandIt>() != std::declval<RandIt>();
-  } && std::is_same_v<UniqueNode,
-                      std::decay_t<decltype(*std::declval<RandIt>())>>
+  } && std::is_same_v<UniqueNode &&, decltype(*std::declval<RandIt>())>
   OperatorBase(StrT name, uint priority, PosType pos, RandIt begin, RandIt end)
       : name_(name), priority_(priority), pos_(pos) {
     for (auto it = begin; it != end; ++it) {
-      child_.emplace_back(std::move(*it));
+      child_.emplace_back(*it);
     }
   }
   const auto &name() const { return name_; }
   uint priority() const override { return priority_; }
+
+  NodeTag tag() const override { return NodeTag::Operator; }
+
+  UniqueNode expand_add(UniqueNode &&self) override {
+    expand_add_sub_tree();
+    return std::move(self);
+  }
 
   std::string to_string() const override {
     std::stringstream ss;
@@ -92,27 +124,22 @@ class OperatorBase : public Node {
         if (child_[0]->priority() < priority_) ss << '(';
         ss << child_[0]->to_string();
         if (child_[0]->priority() < priority_) ss << ')';
-        ss << ' ' << name_ << ' ';
-        if (child_[1]->priority() < priority_) ss << '(';
-        ss << child_[1]->to_string();
-        if (child_[1]->priority() < priority_) ss << ')';
+        if (child_.size() > 1) ss << ' ' << name_ << ' ';
+        // Under most cases, there is only one child after 0.
+        // But things are different for multi-add-op.
+        for (uint32_t i = 1; i < child_.size(); ++i) {
+          if (child_[i]->priority() < priority_) ss << '(';
+          ss << child_[i]->to_string();
+          if (child_[i]->priority() < priority_) ss << ')';
+          if (i != child_.size() - 1) {
+            ss << ' ' << name_ << ' ';
+          }
+        }
         break;
       }
     }
     return ss.str();
   }
-
-  // UniqueNode deep_copy(const UniqueNode &self) const override {
-  //   std::vector<UniqueNode> copy_child;
-  //   copy_child.reserve(child_.size());
-  //   for (auto &child : child_) {
-  //     copy_child.emplace_back(child->deep_copy());
-  //   }
-  //   auto content = new OperatorBase(name_, priority_, pos_,
-  //   copy_child.begin(),
-  //                                   copy_child.end());
-  //   return UniqueNode(content);
-  // }
 
 // Test helpers
 #ifndef NDEBUEG
