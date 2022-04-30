@@ -1,6 +1,7 @@
 #ifndef SPP_AST_OPERAND_BASE_H
 #define SPP_AST_OPERAND_BASE_H
 
+#include <cassert>
 #include <limits>
 
 #include "../node.h"

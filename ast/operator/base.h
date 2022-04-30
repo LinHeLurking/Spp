@@ -4,6 +4,7 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -25,7 +26,6 @@ class OperatorBase : public Node {
   using SmartNum = __SmartNum::SmartNum;
   std::string name_;
   uint priority_;
-  std::vector<UniqueNode> child_;
   PosType pos_;
 
   inline void eval_sub_tree() {
@@ -59,16 +59,26 @@ class OperatorBase : public Node {
     return ans;
   }
 
-  inline std::vector<SmartNum> get_num_unchecked(uint64_t N) const {
-    assert(N == child_.size());
+  inline std::vector<SmartNum> get_num_unchecked() const {
+    // assert(N == child_.size());
     std::vector<SmartNum> ans;
-    for (uint64_t i = 0; i < N; ++i) {
+    for (uint64_t i = 0; i < child_.size(); ++i) {
       ans.emplace_back(NumberAccessor::get_num_unchecked(child_[i]));
     }
     return ans;
   }
 
+  inline uint64_t combine_child_hash() const {
+    uint64_t ans = 0;
+    for (uint32_t i = 0; i < child_.size(); ++i) {
+      ans = ans ^ (child_[i]->hash_code() << 1);
+    }
+    return ans;
+  }
+
  public:
+  std::vector<UniqueNode> child_;
+
   template <typename StrT, typename... NodeT>
   requires std::is_constructible_v<std::string, StrT> &&
       (std::is_same_v<UniqueNode, std::decay_t<NodeT>> &&...)
@@ -84,13 +94,15 @@ class OperatorBase : public Node {
     // Can campare
     std::declval<RandIt>() == std::declval<RandIt>();
     std::declval<RandIt>() != std::declval<RandIt>();
-  } && std::is_same_v<UniqueNode &&, decltype(*std::declval<RandIt>())>
+  } && std::is_same_v<UniqueNode,
+                      std::decay_t<decltype(*std::declval<RandIt>())>>
   OperatorBase(StrT name, uint priority, PosType pos, RandIt begin, RandIt end)
       : name_(name), priority_(priority), pos_(pos) {
     for (auto it = begin; it != end; ++it) {
-      child_.emplace_back(*it);
+      child_.emplace_back(std::move(*it));
     }
   }
+
   const auto &name() const { return name_; }
   uint priority() const override { return priority_; }
 

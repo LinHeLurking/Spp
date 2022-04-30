@@ -7,6 +7,9 @@
 #include "base.h"
 
 namespace Spp::__Ast {
+
+inline const uint64_t MUL_OP_HASH_CODE = std::hash<std::string>{}(__FILE__);
+
 class MulOp : public OperatorBase {
  public:
   template <typename T, typename U>
@@ -28,11 +31,11 @@ class MulOp : public OperatorBase {
     std::vector<UniqueNode> l, r, child;
     auto take = [&](UniqueNode &from, std::vector<UniqueNode> &to) {
       if (from->tag() != NodeTag::Operator) {
-        to.push_back(std::move(from));
+        to.emplace_back(std::move(from));
       } else {
         auto tmp = static_cast<OperatorBase *>(from.get());
         for (auto &x : tmp->child_) {
-          to.push_back(std::move(x));
+          to.emplace_back(std::move(x));
         }
       }
     };
@@ -41,11 +44,15 @@ class MulOp : public OperatorBase {
     for (auto &x : l) {
       for (auto &y : r) {
         // TODO: Actually some copy can be saved.
-        child.push_back(UniqueNode(new MulOp(x->deep_copy(), y->deep_copy())));
+        child.emplace_back(new MulOp(x->deep_copy(), y->deep_copy()));
       }
     }
     std::move_iterator begin{child.begin()}, end{child.end()};
     return UniqueNode(new AddOp(begin, end));
+  }
+
+  uint64_t hash_code() const override {
+    return MUL_OP_HASH_CODE ^ (combine_child_hash() << 1);
   }
 
   UniqueNode deep_copy() const override {

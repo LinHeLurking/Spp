@@ -3,6 +3,9 @@
 
 #include "base.h"
 namespace Spp::__Ast {
+
+inline const uint64_t NEG_OP_HASH_CODE = std::hash<std::string>{}(__FILE__);
+
 class NegOp : public OperatorBase {
  public:
   template <typename T>
@@ -17,6 +20,10 @@ class NegOp : public OperatorBase {
       return UniqueNode(new Number(-sub));
     }
     return std::move(self);
+  }
+
+  uint64_t hash_code() const override {
+    return NEG_OP_HASH_CODE ^ (combine_child_hash() << 1);
   }
 
   UniqueNode deep_copy() const override {

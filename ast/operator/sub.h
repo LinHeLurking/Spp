@@ -6,6 +6,9 @@
 #include "neg.h"
 
 namespace Spp::__Ast {
+
+inline const uint64_t SUB_OP_HASH_CODE = std::hash<std::string>{}(__FILE__);
+
 class SubOp : public OperatorBase {
  public:
   template <typename T, typename U>
@@ -23,9 +26,31 @@ class SubOp : public OperatorBase {
   }
 
   UniqueNode expand_add(UniqueNode &&self) override {
+    assert(this == self.get());
     expand_add_sub_tree();
-    auto r = UniqueNode(new NegOp(std::move(child_[1])));
-    return UniqueNode(new AddOp(std::move(child_[0]), std::move(r)));
+    std::vector<UniqueNode> alt;
+    OperatorBase *sub;
+    if (child_[0]->tag() == NodeTag::Operator &&
+        "+" == (sub = static_cast<OperatorBase *>(child_[0].get()))->name()) {
+      for (auto it = sub->child_.begin(); it != sub->child_.end(); ++it) {
+        alt.emplace_back(std::move(*it));
+      }
+    } else {
+      alt.emplace_back(std::move(child_[0]));
+    }
+    if (child_[1]->tag() == NodeTag::Operator &&
+        "+" == (sub = static_cast<OperatorBase *>(child_[1].get()))->name()) {
+      for (auto it = sub->child_.begin(); it != sub->child_.end(); ++it) {
+        alt.emplace_back(new NegOp(std::move(*it)));
+      }
+    } else {
+      alt.emplace_back(new NegOp(std::move(child_[1])));
+    }
+    return UniqueNode(new AddOp(alt.begin(), alt.end()));
+  }
+
+  uint64_t hash_code() const override {
+    return SUB_OP_HASH_CODE ^ (combine_child_hash() << 1);
   }
 
   UniqueNode deep_copy() const override {

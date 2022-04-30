@@ -44,4 +44,22 @@ TEST(ExprTransformTest, ExpandAddTest) {
     x = remove_whitespace(x);
     EXPECT_EQ(x, "1+(-2)");
   }
+  {
+    auto a = Expression{1} - (Expression{2} - Expression{3});  // 1 - (2 - 3)
+    a = a.expand_add();  // 1 + (-2) + (--3)
+    auto x = a.to_string();
+    x = remove_whitespace(x);
+    EXPECT_EQ(x, "1+(-2)+(--3)");
+    EXPECT_EQ(a.eval().to_string(), "2");
+  }
+  {
+    auto a = Expression{1} - Expression{2};
+    auto b = Expression{1} - Expression{2};
+    a = a - b;           // (1-2)-(1-2)
+    a = a.expand_add();  // 1 + (-2) + (-1) + (--2)
+    auto x = a.to_string();
+    x = remove_whitespace(x);
+    EXPECT_EQ(x, "1+(-2)+(-1)+(--2)");
+    EXPECT_EQ(a.eval().to_string(), "0");
+  }
 }

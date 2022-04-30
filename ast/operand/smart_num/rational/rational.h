@@ -206,7 +206,6 @@ class Rational {
     return os;
   }
 
- private:
   template <typename U>
   requires std::is_integral_v<U>
   static inline auto make_rational(U n) {

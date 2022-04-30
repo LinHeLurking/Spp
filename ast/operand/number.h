@@ -2,13 +2,16 @@
 #define SPP_AST_OPPERAND_NUMBER_H
 
 #include <cassert>
+#include <cstdint>
 #include <memory>
 #include <sstream>
 #include <type_traits>
 #include <utility>
 
+// #include "../../util/visitor.h"
 #include "../node.h"
 #include "base.h"
+#include "smart_num/rational/rational.h"
 #include "smart_num/smart_num.h"
 
 namespace Spp::__Ast {
@@ -27,13 +30,19 @@ class Number : public OperandBase {
     return ss.str();
   }
 
-  NodeTag tag() const override { return NodeTag::Number; }
+  UniqueNode eval(UniqueNode&& self) override {
+    assert(self.get() == this);
+    value_.cast_trivial_rational();
+    return std::move(self);
+  }
 
-  UniqueNode eval(UniqueNode&& self) override { return std::move(self); }
+  NodeTag tag() const override { return NodeTag::Number; }
 
   UniqueNode deep_copy() const override {
     return UniqueNode(new Number(value_));
   }
+
+  uint64_t hash_code() const override { return value_.hash_code(); }
 
   friend class NumberAccessor;
 

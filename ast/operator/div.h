@@ -1,8 +1,13 @@
 #ifndef SPP_AST_OPERATOR_DIV_H
 #define SPP_AST_OPERATOR_DIV_H
 
+#include <functional>
+
 #include "base.h"
 namespace Spp::__Ast {
+
+inline const uint64_t DIV_OP_HASH_CODE = std::hash<std::string>{}(__FILE__);
+
 class DivOp : public OperatorBase {
  public:
   template <typename T, typename U>
@@ -17,6 +22,10 @@ class DivOp : public OperatorBase {
       return UniqueNode(new Number(l / r));
     }
     return std::move(self);
+  }
+
+  uint64_t hash_code() const override {
+    return DIV_OP_HASH_CODE ^ (combine_child_hash() << 1);
   }
 
   UniqueNode deep_copy() const override {

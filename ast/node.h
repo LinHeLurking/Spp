@@ -31,6 +31,8 @@ class Node {
   /**
    * Indicate the node category, which is one of Number, Variable and Operator.
    * One category contains several "types" of Node.
+   * Every operator except sub or neg, has unique operator name.
+   * You can use operator name to check its type.
    */
   virtual NodeTag tag() const = 0;
 
@@ -48,6 +50,8 @@ class Node {
   virtual UniqueNode expand_add(UniqueNode&& self) = 0;
 
   virtual UniqueNode deep_copy() const = 0;
+
+  virtual uint64_t hash_code() const = 0;
 
   friend inline std::ostream& operator<<(std::ostream& os, const Node& n) {
     os << n.to_string();
