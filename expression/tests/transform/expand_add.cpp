@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../expression.h"
+#include "../../expression.h"
 
 using namespace Spp;
 using namespace std;
