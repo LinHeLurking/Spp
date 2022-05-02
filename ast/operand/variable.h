@@ -32,9 +32,19 @@ class Variable : public OperandBase {
     return std::hash<std::string>{}(name_);
   }
 
+  friend class VariableAccessor;
+
  private:
   std::string name_;
 };
+
+class VariableAccessor {
+ public:
+  static inline const std::string &get_name_unchecked(const UniqueNode &node) {
+    return static_cast<Variable *>(node.get())->name_;
+  }
+};
+
 }  // namespace Spp::__Ast
 
 #endif  // !SPP_AST_OPERAND_VARIABLE_H

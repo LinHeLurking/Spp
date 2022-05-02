@@ -1,6 +1,7 @@
 #ifndef SPP_AST_NODE_H
 #define SPP_AST_NODE_H
 
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -48,6 +49,23 @@ class Node {
    *     2) 1-2 => 1 + (-2)
    */
   virtual UniqueNode expand_add(UniqueNode&& self) = 0;
+
+  /**
+   * Reorder commutative operations on demmand.
+   */
+  virtual UniqueNode reorder(UniqueNode&& self) {
+    assert(this == self.get());
+    return std::move(self);
+  }
+
+  /**
+   * Collect similar terms, returning hash_code via `hash` parameter.
+   */
+  virtual UniqueNode collect(UniqueNode&& self, uint64_t& hash) {
+    assert(this == self.get());
+    hash = hash_code();
+    return std::move(self);
+  }
 
   virtual UniqueNode deep_copy() const = 0;
 

@@ -16,7 +16,7 @@ class NegOp : public OperatorBase {
     assert(self.get() == this);
     simplify_sub_tree();
     if (all_child_num()) {
-      auto [sub] = get_num_unchecked<1>();
+      auto [sub] = get_child_num_unchecked<1>();
       return UniqueNode(new Number(-sub));
     }
     return std::move(self);

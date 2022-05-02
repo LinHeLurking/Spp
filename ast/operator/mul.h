@@ -20,7 +20,7 @@ class MulOp : public OperatorBase {
     assert(self.get() == this);
     simplify_sub_tree();
     if (all_child_num()) {
-      auto [l, r] = get_num_unchecked<2>();
+      auto [l, r] = get_child_num_unchecked<2>();
       return UniqueNode(new Number(l * r));
     }
     return std::move(self);

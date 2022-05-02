@@ -11,7 +11,10 @@ class OperandBase : public Node {
  public:
   uint priority() const override { return std::numeric_limits<uint>::max(); }
 
-  UniqueNode expand_add(UniqueNode &&self) override { return std::move(self); }
+  UniqueNode expand_add(UniqueNode &&self) override {
+    assert(this == self.get());
+    return std::move(self);
+  }
 };
 
 }  // namespace Spp::__Ast

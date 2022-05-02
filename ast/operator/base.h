@@ -14,7 +14,7 @@
 
 #include "../node.h"
 #include "../operand/number.h"
-// #include "mul.h"
+#include "../operand/variable.h"
 
 namespace Spp::__Ast {
 
@@ -29,14 +29,20 @@ class OperatorBase : public Node {
   PosType pos_;
 
   inline void simplify_sub_tree() {
-    for (uint32_t i = 0; i < child_.size(); ++i) {
+    for (int i = 0; i < child_.size(); ++i) {
       child_[i] = std::move(child_[i]->simplify(std::move(child_[i])));
     }
   }
 
   inline void expand_add_sub_tree() {
-    for (uint32_t i = 0; i < child_.size(); ++i) {
+    for (int i = 0; i < child_.size(); ++i) {
       child_[i] = std::move(child_[i]->expand_add(std::move(child_[i])));
+    }
+  }
+
+  inline void reorder_sub_tree() {
+    for (int i = 0; i < child_.size(); ++i) {
+      child_[i] = std::move(child_[i]->reorder(std::move(child_[i])));
     }
   }
 
@@ -50,22 +56,30 @@ class OperatorBase : public Node {
   }
 
   template <uint64_t N>
-  inline std::array<SmartNum, N> get_num_unchecked() const {
+  inline std::array<SmartNum, N> get_child_num_unchecked() const {
     assert(N == child_.size());
     std::array<SmartNum, N> ans;
-    for (uint64_t i = 0; i < N; ++i) {
+    for (int i = 0; i < N; ++i) {
       ans[i] = NumberAccessor::get_num_unchecked(child_[i]);
     }
     return ans;
   }
 
-  inline std::vector<SmartNum> get_num_unchecked() const {
+  inline std::vector<SmartNum> get_child_num_unchecked() const {
     // assert(N == child_.size());
     std::vector<SmartNum> ans;
     for (uint64_t i = 0; i < child_.size(); ++i) {
       ans.emplace_back(NumberAccessor::get_num_unchecked(child_[i]));
     }
     return ans;
+  }
+
+  static inline SmartNum get_num_unchecked(const UniqueNode &node) {
+    return NumberAccessor::get_num_unchecked(node);
+  }
+
+  static inline const std::string &get_name_unchecked(const UniqueNode &node) {
+    return VariableAccessor::get_name_unchecked(node);
   }
 
   inline uint64_t combine_child_hash() const {
