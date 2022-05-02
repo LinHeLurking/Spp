@@ -14,9 +14,9 @@ class DivOp : public OperatorBase {
   requires is_unique_node<T> && is_unique_node<U> DivOp(T &&l, U &&r)
       : OperatorBase("/", 2, PosType::infix, std::move(l), std::move(r)){};
 
-  UniqueNode eval(UniqueNode &&self) override {
+  UniqueNode simplify(UniqueNode &&self) override {
     assert(self.get() == this);
-    eval_sub_tree();
+    simplify_sub_tree();
     if (all_child_num()) {
       auto [l, r] = get_num_unchecked<2>();
       return UniqueNode(new Number(l / r));

@@ -30,7 +30,7 @@ class Number : public OperandBase {
     return ss.str();
   }
 
-  UniqueNode eval(UniqueNode&& self) override {
+  UniqueNode simplify(UniqueNode&& self) override {
     assert(self.get() == this);
     value_.cast_trivial_rational();
     return std::move(self);

@@ -12,9 +12,9 @@ class NegOp : public OperatorBase {
   requires is_unique_node<T> NegOp(T &&sub)
       : OperatorBase("-", 0, PosType::prefix_op, std::move(sub)) {}
 
-  UniqueNode eval(UniqueNode &&self) override {
+  UniqueNode simplify(UniqueNode &&self) override {
     assert(self.get() == this);
-    eval_sub_tree();
+    simplify_sub_tree();
     if (all_child_num()) {
       auto [sub] = get_num_unchecked<1>();
       return UniqueNode(new Number(-sub));

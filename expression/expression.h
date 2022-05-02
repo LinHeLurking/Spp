@@ -104,8 +104,8 @@ class Expression {
   /**
    * Evaluate this.
    */
-  Expression &&eval() {
-    ast_ = std::move(ast_->eval(std::move(ast_)));
+  Expression &&simplify() {
+    ast_ = std::move(ast_->simplify(std::move(ast_)));
     return std::move(*this);
   }
 

@@ -79,7 +79,7 @@ TEST(ExprTest, NegTest) {
     Expression a{i};                   \
     Expression b{j};                   \
     auto c = (a op b);                 \
-    c = c.eval();                      \
+    c = c.simplify();                  \
     auto x = c.to_string();            \
     x = remove_whitespace(x);          \
     EXPECT_EQ(x, to_string(i op j));   \

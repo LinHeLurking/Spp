@@ -37,9 +37,9 @@ class Node {
   virtual NodeTag tag() const = 0;
 
   /**
-   * Evaluate as many numeric nodes as possible.
+   * Simplify as much as possible.
    */
-  virtual UniqueNode eval(UniqueNode&& self) = 0;
+  virtual UniqueNode simplify(UniqueNode&& self) = 0;
 
   /**
    * Expand all "Add" operations.

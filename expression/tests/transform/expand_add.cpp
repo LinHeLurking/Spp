@@ -32,7 +32,7 @@ TEST(ExprTransformTest, ExpandAddTest) {
     auto x = a.to_string();
     x = remove_whitespace(x);
     EXPECT_EQ(x, "(-1)*(-1)+(-1)*(--2)+(-2)*(-1)+(-2)*(--2)");
-    EXPECT_EQ(a.eval().to_string(), "-3");
+    EXPECT_EQ(a.simplify().to_string(), "-3");
   }
   {
     auto a = Expression{1} - Expression{2};
@@ -50,7 +50,7 @@ TEST(ExprTransformTest, ExpandAddTest) {
     auto x = a.to_string();
     x = remove_whitespace(x);
     EXPECT_EQ(x, "1+(-2)+(--3)");
-    EXPECT_EQ(a.eval().to_string(), "2");
+    EXPECT_EQ(a.simplify().to_string(), "2");
   }
   {
     auto a = Expression{1} - Expression{2};
@@ -60,6 +60,6 @@ TEST(ExprTransformTest, ExpandAddTest) {
     auto x = a.to_string();
     x = remove_whitespace(x);
     EXPECT_EQ(x, "1+(-2)+(-1)+(--2)");
-    EXPECT_EQ(a.eval().to_string(), "0");
+    EXPECT_EQ(a.simplify().to_string(), "0");
   }
 }

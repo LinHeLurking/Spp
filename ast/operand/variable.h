@@ -19,7 +19,7 @@ class Variable : public OperandBase {
 
   NodeTag tag() const override { return NodeTag::Variable; }
 
-  UniqueNode eval(UniqueNode &&self) override {
+  UniqueNode simplify(UniqueNode &&self) override {
     assert(self.get() == this);
     return std::move(self);
   }

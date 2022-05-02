@@ -36,9 +36,9 @@ class AddOp : public OperatorBase {
       : OperatorBase("+", 1, PosType::infix, std::forward<RandIt>(begin),
                      std::forward<RandIt>(end)) {}
 
-  UniqueNode eval(UniqueNode&& self) override {
+  UniqueNode simplify(UniqueNode&& self) override {
     assert(self.get() == this);
-    eval_sub_tree();
+    simplify_sub_tree();
     if (all_child_num()) {
       // auto [l, r] = get_num_unchecked<2>();
       auto child_num = get_num_unchecked();

@@ -28,9 +28,9 @@ class OperatorBase : public Node {
   uint priority_;
   PosType pos_;
 
-  inline void eval_sub_tree() {
+  inline void simplify_sub_tree() {
     for (uint32_t i = 0; i < child_.size(); ++i) {
-      child_[i] = std::move(child_[i]->eval(std::move(child_[i])));
+      child_[i] = std::move(child_[i]->simplify(std::move(child_[i])));
     }
   }
 
