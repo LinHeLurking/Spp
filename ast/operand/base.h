@@ -9,12 +9,11 @@
 namespace Spp::__Ast {
 class OperandBase : public Node {
  public:
-  uint priority() const override { return std::numeric_limits<uint>::max(); }
+  uint32_t priority() const override;
 
-  UniqueNode expand_add(UniqueNode &&self) override {
-    assert(this == self.get());
-    return std::move(self);
-  }
+  UniqueNode expand_add(UniqueNode &&self) override;
+
+  UniqueNode collect(UniqueNode &&self, uint64_t &hash) override;
 };
 
 }  // namespace Spp::__Ast

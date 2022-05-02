@@ -2,6 +2,7 @@
 #define SPP_AST_NODE_H
 
 #include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -24,8 +25,8 @@ enum class NodeTag {
 
 class Node {
  public:
-  virtual ~Node() {}
-  virtual uint priority() const = 0;
+  virtual ~Node(){};
+  virtual uint32_t priority() const = 0;
 
   virtual std::string to_string() const = 0;
 
@@ -49,14 +50,6 @@ class Node {
    *     2) 1-2 => 1 + (-2)
    */
   virtual UniqueNode expand_add(UniqueNode&& self) = 0;
-
-  /**
-   * Reorder commutative operations on demmand.
-   */
-  virtual UniqueNode reorder(UniqueNode&& self) {
-    assert(this == self.get());
-    return std::move(self);
-  }
 
   /**
    * Collect similar terms, returning hash_code via `hash` parameter.

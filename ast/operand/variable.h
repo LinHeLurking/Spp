@@ -9,28 +9,22 @@
 #include "base.h"
 
 namespace Spp::__Ast {
+
 class Variable : public OperandBase {
  public:
-  template <typename... T>
-  requires std::is_constructible_v<std::string, T...>
-  explicit Variable(T &&...name) : name_((name, ...)) {}
+  template <typename T>
+  requires std::is_constructible_v<std::string, T>
+  explicit Variable(T &&name) : name_(name) {}
 
-  std::string to_string() const override { return name_; }
+  std::string to_string() const override;
 
-  NodeTag tag() const override { return NodeTag::Variable; }
+  NodeTag tag() const override;
 
-  UniqueNode simplify(UniqueNode &&self) override {
-    assert(self.get() == this);
-    return std::move(self);
-  }
+  UniqueNode simplify(UniqueNode &&self) override;
 
-  UniqueNode deep_copy() const override {
-    return UniqueNode(new Variable(name_));
-  }
+  UniqueNode deep_copy() const override;
 
-  uint64_t hash_code() const override {
-    return std::hash<std::string>{}(name_);
-  }
+  uint64_t hash_code() const override;
 
   friend class VariableAccessor;
 

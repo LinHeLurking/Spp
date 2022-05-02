@@ -6,14 +6,10 @@
 #include <string>
 
 #include "../expression.h"
+#include "util/common.h"
 
 using namespace Spp;
 using namespace std;
-
-inline string& remove_whitespace(string& s) {
-  s.erase(remove(s.begin(), s.end(), ' '), s.end());
-  return s;
-}
 
 TEST(ExprTest, NegTest) {
   Expression a{1};

@@ -7,6 +7,7 @@
 #include "../util/concept.h"
 #include "node.h"
 #include "operand/number.h"
+#include "operand/variable.h"
 #include "operator/add.h"
 #include "operator/div.h"
 #include "operator/mul.h"
@@ -30,6 +31,13 @@ class UniqueNodes {
   requires UnsignedInteger<T> && UnsignedInteger<U>
   static inline UniqueNode number(T nominator, U denominator, uint32_t sign) {
     return UniqueNode(new Number(nominator, denominator, sign));
+  }
+
+  // Create a variable
+  template <typename T>
+  requires std::is_constructible_v<std::string, T>
+  static inline UniqueNode variable(T&& name) {
+    return UniqueNode(new Variable(name));
   }
 };
 }  // namespace Spp::__Ast

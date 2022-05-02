@@ -53,6 +53,10 @@ class Expression {
   requires SignedInteger<T> || std::is_floating_point_v<T>
   explicit Expression(T x) : ast_(Asts::number(x)) {}
 
+  template <typename T>
+  requires std::is_constructible_v<std::string, T>
+  explicit Expression(T &&name) : ast_(Asts::variable(name)) {}
+
   // Question: Is it needed to construct rational number directly?
   // Because we have operator/ already.
 
@@ -93,29 +97,25 @@ class Expression {
    * I/O member functions.
    */
 
-  std::string to_string() const { return ast_->to_string(); }
+  std::string to_string() const;
 
   friend inline std::ostream &operator<<(std::ostream &os,
-                                         const Expression &expr) {
-    os << expr.to_string();
-    return os;
-  }
+                                         const Expression &expr);
 
   /**
    * Evaluate this.
    */
-  Expression &&simplify() {
-    ast_ = std::move(ast_->simplify(std::move(ast_)));
-    return std::move(*this);
-  }
+  Expression &&simplify();
 
   /**
    * Expand all add operations. (a+b)*(c+d) => ac + ad + bc + bd
    */
-  Expression &&expand_add() {
-    ast_ = std::move(ast_->expand_add(std::move(ast_)));
-    return std::move(*this);
-  }
+  Expression &&expand_add();
+
+  /**
+   * Collect similart terms
+   */
+  Expression &&collect();
 
  private:
   Ast ast_;
@@ -123,11 +123,9 @@ class Expression {
   Expression(Ast &ast) : ast_(std::move(ast)) {}
   Expression(Ast &&ast) : ast_(std::move(ast)) {}
 
-  static inline Ast take_ast(Expression &&expr) { return std::move(expr.ast_); }
+  static Ast take_ast(Expression &&expr);
 
-  static inline Ast take_ast(Expression &expr) {
-    return expr.ast_->deep_copy();
-  }
+  static Ast take_ast(Expression &expr);
 };
 }  // namespace Spp::__Expression
 

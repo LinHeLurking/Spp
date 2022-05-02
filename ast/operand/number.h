@@ -8,7 +8,6 @@
 #include <type_traits>
 #include <utility>
 
-// #include "../../util/visitor.h"
 #include "../node.h"
 #include "base.h"
 #include "smart_num/rational/rational.h"
@@ -18,31 +17,21 @@ namespace Spp::__Ast {
 
 class Number : public OperandBase {
  public:
-  explicit Number(const __SmartNum::SmartNum& v) : value_(v) {}
+  explicit Number(const __SmartNum::SmartNum& v) : value_(v){};
 
   template <typename... T>
   requires std::is_constructible_v<__SmartNum::SmartNum, T...>
   explicit Number(T... v) : value_((v, ...)) {}
 
-  std::string to_string() const override {
-    std::stringstream ss;
-    ss << value_;
-    return ss.str();
-  }
+  std::string to_string() const override;
 
-  UniqueNode simplify(UniqueNode&& self) override {
-    assert(self.get() == this);
-    value_.cast_trivial_rational();
-    return std::move(self);
-  }
+  UniqueNode simplify(UniqueNode&& self) override;
 
-  NodeTag tag() const override { return NodeTag::Number; }
+  NodeTag tag() const override;
 
-  UniqueNode deep_copy() const override {
-    return UniqueNode(new Number(value_));
-  }
+  UniqueNode deep_copy() const override;
 
-  uint64_t hash_code() const override { return value_.hash_code(); }
+  uint64_t hash_code() const override;
 
   friend class NumberAccessor;
 

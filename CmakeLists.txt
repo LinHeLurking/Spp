@@ -29,17 +29,31 @@ set(_SMART_NUM_TEST_SRC "ast/operand/smart_num/test.cpp")
 spp_test(rational_test "${_RATIONAL_SRC}" "${_RATIONAL_TEST_SRC}")
 spp_test(smart_num_test "${_SMART_NUM_SRC}" "${_SMART_NUM_TEST_SRC}")
 
-set(_AST_SRC "ast/operator/base.h" "ast/ast.h" "ast/operator/neg.h" 
-"ast/operator/add.h" "ast/operator/sub.h" "ast/operator/mul.h" "ast/operator/div.h"
-"ast/operand/base.h" "ast/operand/number.h" "ast/node.h"
+set(_AST_SRC "ast/ast.h" "ast/node.h"
+"ast/operator/base.h" "ast/operator/base.cpp"
+"ast/operator/neg.h" "ast/operator/neg.cpp" 
+"ast/operator/add.h" "ast/operator/add.cpp" 
+"ast/operator/sub.h" "ast/operator/sub.cpp" 
+"ast/operator/mul.h" "ast/operator/mul.cpp" 
+"ast/operator/div.h" "ast/operator/div.cpp"
+"ast/operand/base.h" "ast/operand/base.cpp" 
+"ast/operand/number.h" "ast/operand/number.cpp" 
+"ast/operand/variable.h" "ast/operand/variable.cpp" 
 "${_SMART_NUM_SRC}")
 
 set(_AST_TEST_SRC "ast/test.cpp" "${_AST_SRC}")
 
 spp_test(ast_test "${_AST_SRC}" "${_AST_TEST_SRC}")
 
-set(_EXPRESSION_SRC "expression/expression.h")
-set(_EXPRESSION_TEST_SRC "expression/tests/arithmetic.cpp" "expression/tests/transform/expand_add.cpp")
+set(_EXPRESSION_SRC 
+"expression/expression.h" "expression/expression.cpp" "${_AST_SRC}"
+)
+set(_EXPRESSION_TEST_SRC 
+"expression/tests/util/common.h"
+"expression/tests/arithmetic.cpp" 
+"expression/tests/transform/expand_add.cpp"
+"expression/tests/transform/collect.cpp"
+)
 
 spp_test(expr_test "${_EXPRESSION_SRC}" "${_EXPRESSION_TEST_SRC}")
 
