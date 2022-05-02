@@ -10,7 +10,7 @@ TEST(ExprTransformTest, CollectTest) {
   d = d.expand_add().collect();
   auto x = d.to_string();
   x = remove_whitespace(x);
-  // For now, reorder functions is not implemented.
+  // For now, reorder function is not implemented.
   // So compare all possible results.
   EXPECT_TRUE(x == "2*x+1" || x == "1+2*x" || x == "x*2+1" || x == "1+x*2")
       << x << std::endl;
