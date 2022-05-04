@@ -27,6 +27,12 @@ Expression&& Expression::collect() {
   return std::move(*this);
 }
 
+Expression&& Expression::reorder() {
+  uint64_t sz;
+  ast_ = std::move(ast_->reorder(std::move(ast_), sz));
+  return std::move(*this);
+}
+
 __Ast::UniqueNode Expression::take_ast(Expression&& expr) {
   return std::move(expr.ast_);
 }

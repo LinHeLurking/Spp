@@ -60,6 +60,20 @@ class Node {
     return std::move(self);
   }
 
+  /**
+   * Reorder commutative terms, returning size via `size` parameter.
+   */
+  virtual UniqueNode reorder(UniqueNode&& self, uint64_t& size) {
+    assert(this == self.get());
+    size = this->size();
+    return std::move(self);
+  }
+
+  /**
+   * Get the size of ast.
+   */
+  virtual uint64_t size() const = 0;
+
   virtual UniqueNode deep_copy() const = 0;
 
   virtual uint64_t hash_code() const = 0;

@@ -90,15 +90,15 @@ class SmartNum {
 
   inline uint64_t hash_code() const {
     return std::visit(
-        [](Value &&arg) -> uint64_t {
+        [](auto &&arg) -> uint64_t {
           using T = std::decay_t<decltype(arg)>;
           if constexpr (std::is_same_v<T, int64_t>) {
-            return std::get<int64_t>(arg);
+            return arg;
           } else if constexpr (std::is_same_v<T, Rational>) {
-            auto &x = std::get<Rational>(arg);
+            const Rational &x = arg;
             return ((x.nominator_) ^ (x.denominator_ << 1)) << 1;
           } else /*if constexpr (std::is_same_v<T, double>) */ {
-            double x = std::get<double>(arg);
+            double x = arg;
             return (*(uint64_t *)(&x)) << 1 | 1;
           }
         },

@@ -39,6 +39,64 @@ UniqueNode MulOp::expand_add(UniqueNode &&self) {
   return UniqueNode(new AddOp(begin, end));
 }
 
+UniqueNode MulOp::reorder(UniqueNode &&self, uint64_t &size) {
+  assert(this == self.get());
+  // In the future, there might be some matrix operands.
+  // So, pay attention to MulOp reorder!
+  size = 1;
+  using T = std::pair<UniqueNode, uint64_t>;
+  std::vector<T> sized_child;
+  for (int i = 0; i < child_.size(); ++i) {
+    uint64_t sz;
+    UniqueNode c = child_[i]->reorder(std::move(child_[i]), sz);
+    size += sz;
+    sized_child.emplace_back(std::move(c), sz);
+  }
+  child_.clear();
+  std::sort(sized_child.begin(), sized_child.end(),
+            [](const T &l, const T &r) -> bool {
+              switch (l.first->tag()) {
+                case NodeTag::Number: {
+                  if (r.first->tag() == NodeTag::Number) {
+                    return get_num_unchecked(l.first) <
+                           get_num_unchecked(r.first);
+                  } else {
+                    return true;
+                  }
+                }
+                case NodeTag::Variable: {
+                  switch (r.first->tag()) {
+                    case NodeTag::Number: {
+                      return false;
+                    }
+                    case NodeTag::Variable: {
+                      return get_name_unchecked(l.first) <
+                             get_name_unchecked(r.first);
+                    }
+                    case NodeTag::Operator: {
+                      return true;
+                    }
+                  }
+                }
+                case NodeTag::Operator: {
+                  if (r.first->tag() == NodeTag::Operator) {
+                    if (l.second == r.second) {
+                      return l.first->to_string() < r.first->to_string();
+                    } else {
+                      return l.second < r.second;
+                    }
+                  } else {
+                    return false;
+                  }
+                }
+              }
+            });
+  for (int i = 0; i < sized_child.size(); ++i) {
+    child_.emplace_back(std::move(sized_child[i].first));
+  }
+  return std::move(self);
+}
+
 uint64_t MulOp::hash_code() const {
   return MUL_OP_HASH_CODE ^ (combine_child_hash() << 1);
 }

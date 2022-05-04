@@ -16,12 +16,6 @@ void OperatorBase::expand_add_sub_tree() {
   }
 }
 
-// void OperatorBase::reorder_sub_tree() {
-//   for (int i = 0; i < child_.size(); ++i) {
-//     child_[i] = std::move(child_[i]->reorder(std::move(child_[i])));
-//   }
-// }
-
 bool OperatorBase::all_child_num() const {
   for (const auto& child : child_) {
     if (child->tag() != NodeTag::Number) {
@@ -51,6 +45,14 @@ uint64_t OperatorBase::combine_child_hash() const {
 const std::string& OperatorBase::name() const { return name_; }
 
 uint32_t OperatorBase::priority() const { return priority_; }
+
+uint64_t OperatorBase::size() const {
+  uint64_t ans = 1;
+  for (const auto& child : child_) {
+    ans += child->size();
+  }
+  return ans;
+}
 
 NodeTag OperatorBase::tag() const { return NodeTag::Operator; }
 

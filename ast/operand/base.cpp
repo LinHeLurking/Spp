@@ -8,6 +8,8 @@ uint32_t OperandBase::priority() const {
   return std::numeric_limits<uint>::max();
 }
 
+uint64_t OperandBase::size() const { return 1; }
+
 UniqueNode OperandBase::expand_add(UniqueNode &&self) {
   assert(this == self.get());
   return std::move(self);

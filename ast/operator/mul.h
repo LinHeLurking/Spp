@@ -20,6 +20,8 @@ class MulOp : public OperatorBase {
 
   UniqueNode expand_add(UniqueNode &&self) override;
 
+  UniqueNode reorder(UniqueNode &&self, uint64_t &size) override;
+
   uint64_t hash_code() const override;
 
   UniqueNode deep_copy() const override;

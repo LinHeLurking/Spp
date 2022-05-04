@@ -117,6 +117,11 @@ class Expression {
    */
   Expression &&collect();
 
+  /**
+   * Reorder commutative terms.
+   */
+  Expression &&reorder();
+
  private:
   Ast ast_;
 

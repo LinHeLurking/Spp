@@ -41,6 +41,8 @@ class AddOp : public OperatorBase {
 
   UniqueNode collect(UniqueNode&& self, uint64_t& hash) override;
 
+  UniqueNode reorder(UniqueNode&& self, uint64_t& size) override;
+
   UniqueNode deep_copy() const override;
 };
 }  // namespace Spp::__Ast

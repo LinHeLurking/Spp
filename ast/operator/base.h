@@ -47,6 +47,8 @@ class OperatorBase : public Node {
 
   uint32_t priority() const override;
 
+  uint64_t size() const override;
+
   NodeTag tag() const override;
 
   UniqueNode expand_add(UniqueNode &&self) override;
